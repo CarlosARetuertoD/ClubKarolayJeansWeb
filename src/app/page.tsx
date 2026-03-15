@@ -34,35 +34,35 @@ export default function HomePage() {
    ═══════════════════════════════════════════ */
 function HeroSection() {
   return (
-    <section id="inicio" className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section id="inicio" className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden pt-28 sm:pt-32">
       <div className="absolute inset-0">
         <Image src="/images/hero/hero-lg.png" alt="" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
       </div>
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <p className="text-mocha-300 font-heading text-sm sm:text-base md:text-lg tracking-[4px] sm:tracking-[6px] uppercase mb-6 animate-fade-in-up font-medium">
+        <p className="text-mocha-300 font-heading text-sm sm:text-base md:text-lg tracking-[4px] sm:tracking-[6px] uppercase mb-6 animate-fade-in-down font-medium" style={{ animationDelay: '0.1s' }}>
           Tienda de jeans &bull; Arequipa
         </p>
 
-        {/* CLUB / KAROLAY / JEANS — JEANS siempre termina donde termina KAROLAY */}
-        <div className="animate-fade-in-up inline-block" style={{ animationDelay: '0.15s' }}>
-          <p className="font-heading font-bold text-white text-3xl sm:text-4xl md:text-5xl tracking-[0.2em] uppercase">
+        {/* CLUB / KAROLAY / JEANS — staggered entrance */}
+        <div className="inline-block">
+          <p className="font-heading font-bold text-white text-3xl sm:text-4xl md:text-5xl tracking-[0.2em] uppercase animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
             Club
           </p>
-          <h1 className="font-heading font-extrabold text-mocha-500 text-[3.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] tracking-tight leading-[0.85]">
+          <h1 className="font-heading font-extrabold text-mocha-500 text-[3.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] tracking-tight leading-[0.85] animate-scale-in" style={{ animationDelay: '0.4s' }}>
             KAROLAY
           </h1>
-          <p className="font-heading font-semibold text-white text-xl sm:text-2xl md:text-3xl tracking-[0.3em] uppercase text-right -mt-1 sm:-mt-2">
+          <p className="font-heading font-semibold text-white text-xl sm:text-2xl md:text-3xl tracking-[0.3em] uppercase text-right -mt-1 sm:-mt-2 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             Jeans
           </p>
         </div>
 
-        <p className="text-white/50 text-sm sm:text-base md:text-lg mt-8 font-light max-w-md mx-auto animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.3s' }}>
+        <p className="text-white/50 text-sm sm:text-base md:text-lg mt-8 font-light max-w-md mx-auto animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.8s' }}>
           Todas las marcas, todos los fits, un solo lugar. Encuentra el jean que te queda perfecto.
         </p>
 
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '1s' }}>
           <Link
             href="/catalogo"
             className="group px-8 py-3.5 bg-mocha-500 text-white font-heading font-semibold rounded-full hover:bg-mocha-600 transition-all tracking-wide flex items-center gap-2"
@@ -89,7 +89,7 @@ function HeroSection() {
         <Link
           href="/#ubicacion"
           className="mt-6 inline-flex items-center gap-1.5 text-mocha-400 text-sm font-heading font-medium hover:text-mocha-300 transition-colors animate-fade-in-up"
-          style={{ animationDelay: '0.6s' }}
+          style={{ animationDelay: '1.15s' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />

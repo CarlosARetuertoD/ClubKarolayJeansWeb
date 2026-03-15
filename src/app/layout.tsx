@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import TrackingProvider from '@/components/TrackingProvider'
+import SmoothScroll from '@/components/SmoothScroll'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.clubkarolayjeans.com'),
@@ -66,6 +67,7 @@ export default function RootLayout({
     <html lang="es">
       <body className="font-sans antialiased bg-dark text-white">
         <TrackingProvider />
+        <SmoothScroll />
         {children}
       </body>
     </html>

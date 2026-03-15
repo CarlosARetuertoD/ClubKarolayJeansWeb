@@ -4,10 +4,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
 
-/* ── Smooth scroll ── */
-html {
-  scroll-behavior: smooth;
-}
+/* ── Scroll manejado por JS para mejor fluidez ── */
 
 /* ── Custom scrollbar ── */
 ::-webkit-scrollbar {
@@ -71,12 +68,10 @@ html {
 /* ── Section fade in on scroll (JS driven) ── */
 .section-hidden {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.5s ease;
 }
 .section-visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ── Marquee / carousel infinito de marcas ── */
