@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#201e1e"/>
+      <stop offset="60%" style="stop-color:#282424"/>
+      <stop offset="100%" style="stop-color:#1a1717"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <rect x="0" y="780" width="600" height="20" fill="#9b6d53" opacity="0.6"/>
+  <rect x="0" y="0" width="600" height="4" fill="#9b6d53" opacity="0.8"/>
+  <!-- Slim pants silhouette - narrow legs -->
+  <g transform="translate(300,330)" opacity="0.15">
+    <path d="M-50,-150 L-70,-150 Q-75,-150 -75,-140 L-75,0 L-45,160 L-5,160 L-5,10 L5,10 L5,160 L45,160 L75,0 L75,-140 Q75,-150 70,-150 L50,-150 L35,-135 L-35,-135 Z" fill="#9b6d53" stroke="#9b6d53" stroke-width="2"/>
+    <line x1="-5" y1="10" x2="-5" y2="-135" stroke="#7a5640" stroke-width="1.5"/>
+    <line x1="5" y1="10" x2="5" y2="-135" stroke="#7a5640" stroke-width="1.5"/>
+  </g>
+  <!-- Label badge -->
+  <rect x="220" y="490" width="160" height="30" rx="15" fill="none" stroke="#9b6d53" stroke-width="1" opacity="0.4"/>
+  <text x="300" y="510" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#9b6d53" text-anchor="middle" opacity="0.6" letter-spacing="3">SLIM FIT</text>
+  <!-- Text -->
+  <text x="300" y="570" font-family="'Helvetica Neue', Arial, sans-serif" font-size="48" font-weight="700" fill="#9b6d53" text-anchor="middle" letter-spacing="8">JEAN SLIM</text>
+  <line x1="200" y1="590" x2="400" y2="590" stroke="#9b6d53" stroke-width="1" opacity="0.5"/>
+  <text x="300" y="620" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle" opacity="0.4" letter-spacing="4">CLUB KAROLAY</text>
+</svg>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.clubkarolayjeans.com/sitemap.xml

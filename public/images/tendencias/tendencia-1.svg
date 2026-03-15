@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2525"/>
+      <stop offset="50%" style="stop-color:#201e1e"/>
+      <stop offset="100%" style="stop-color:#181515"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b6d53;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#9b6d53;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <!-- Decorative glow -->
+  <ellipse cx="300" cy="350" rx="200" ry="250" fill="url(#glow)"/>
+  <rect x="0" y="780" width="600" height="20" fill="#9b6d53" opacity="0.6"/>
+  <rect x="0" y="0" width="600" height="4" fill="#9b6d53" opacity="0.8"/>
+  <!-- Trend label -->
+  <rect x="200" y="100" width="200" height="36" rx="18" fill="#9b6d53" opacity="0.9"/>
+  <text x="300" y="124" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle" letter-spacing="4">TENDENCIA</text>
+  <!-- Baggy silhouette -->
+  <g transform="translate(300,340)" opacity="0.12">
+    <path d="M-55,-150 L-85,-150 Q-95,-150 -95,-140 L-105,0 Q-115,80 -105,160 L-5,160 L-5,10 L5,10 L5,160 L105,160 Q115,80 105,0 L95,-140 Q95,-150 85,-150 L55,-150 L40,-135 L-40,-135 Z" fill="#9b6d53" stroke="#9b6d53" stroke-width="2"/>
+  </g>
+  <!-- Main text -->
+  <text x="300" y="560" font-family="'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" fill="#9b6d53" text-anchor="middle" letter-spacing="6">BAGGY</text>
+  <text x="300" y="610" font-family="'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" fill="#9b6d53" text-anchor="middle" letter-spacing="6">JEANS</text>
+  <text x="300" y="660" font-family="'Helvetica Neue', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.35" letter-spacing="6">2026 COLLECTION</text>
+</svg>

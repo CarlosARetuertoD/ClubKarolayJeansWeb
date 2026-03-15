@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+/* ── Smooth scroll ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #201e1e;
+}
+::-webkit-scrollbar-thumb {
+  background: #9b6d53;
+  border-radius: 3px;
+}
+
+/* ── Bio card gradient backgrounds ── */
+.bg-dark-radial {
+  background:
+    radial-gradient(circle at top, rgba(32, 30, 30, 0.9) 0, rgba(25, 22, 20, 0.96) 55%, rgba(11, 9, 8, 0.98) 100%),
+    url('/images/hero/hero-lg.png') center center / cover no-repeat fixed;
+}
+
+.bg-card-radial {
+  background: radial-gradient(circle at top left, #201e1e, #252626 55%, #181515);
+}
+
+/* ── Glass effect ── */
+.glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Hero overlay ── */
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 10, 6, 0.5) 0%,
+    rgba(17, 10, 6, 0.3) 40%,
+    rgba(17, 10, 6, 0.7) 100%
+  );
+}
+
+/* ── Category card hover ── */
+.category-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ── WhatsApp button float animation ── */
+@keyframes whatsappBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.whatsapp-float {
+  animation: whatsappBounce 2s ease-in-out infinite;
+}
+
+/* ── Section fade in on scroll (JS driven) ── */
+.section-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.section-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Marquee / carousel infinito de marcas ── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ── Promo badge pulse ── */
+.promo-badge {
+  animation: promoPulse 1.6s ease-in-out infinite;
+}
+@keyframes promoPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(221, 177, 83, 0); }
+  50% { box-shadow: 0 0 18px rgba(221, 177, 83, 0.35); }
+}

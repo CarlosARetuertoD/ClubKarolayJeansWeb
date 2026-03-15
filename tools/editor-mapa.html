@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor de Mapa - Club Karolay Jeans</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; color: #eee; display: flex; height: 100vh; overflow: hidden; }
+    .sidebar { width: 320px; background: #16213e; padding: 14px; overflow-y: auto; border-right: 1px solid #334; display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+    .sidebar h2 { font-size: 14px; color: #9b6d53; text-transform: uppercase; letter-spacing: 2px; }
+    .sidebar h3 { font-size: 11px; color: #aaa; margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+    label { display: block; color: #999; margin-bottom: 2px; font-size: 11px; }
+    input, select { width: 100%; padding: 5px 7px; background: #0f3460; border: 1px solid #334; color: #eee; border-radius: 4px; font-size: 12px; margin-bottom: 4px; }
+    input[type="color"] { height: 28px; padding: 2px; cursor: pointer; }
+    input[type="checkbox"] { width: auto; margin-right: 6px; }
+    .btn { padding: 7px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 600; width: 100%; margin-bottom: 3px; transition: all 0.15s; }
+    .btn-primary { background: #9b6d53; color: white; }
+    .btn-primary:hover { background: #7a5240; }
+    .btn-green { background: #25d366; color: white; }
+    .btn-green:hover { background: #1fa855; }
+    .btn-danger { background: #c0392b; color: white; }
+    .btn-outline { background: transparent; border: 1px solid #444; color: #aaa; }
+    .btn-outline:hover { background: #253; color: #eee; }
+    .btn-sm { padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; }
+    .row { display: flex; gap: 5px; }
+    .row > * { flex: 1; }
+    hr { border: none; border-top: 1px solid #2a2a4a; margin: 4px 0; }
+    .hint { font-size: 10px; color: #555; }
+    .block-list { list-style: none; max-height: 180px; overflow-y: auto; }
+    .block-list li { padding: 5px 7px; background: #0f3460; border-radius: 3px; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border: 1px solid transparent; font-size: 11px; }
+    .block-list li:hover { border-color: #9b6d53; }
+    .block-list li.sel { border-color: #ddb153; background: #1a3a6e; }
+    .block-list li .d { width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; flex-shrink: 0; }
+    .tabs { display: flex; gap: 2px; margin-bottom: 6px; }
+    .tabs button { flex: 1; padding: 6px; background: #0f3460; border: 1px solid #334; color: #888; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .tabs button.active { background: #9b6d53; color: white; border-color: #9b6d53; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .canvas-area { flex: 1; display: flex; flex-direction: column; }
+    .toolbar { padding: 6px 12px; background: #16213e; border-bottom: 1px solid #334; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #666; }
+    .toolbar .sep { width: 1px; height: 18px; background: #334; }
+    .canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #111; cursor: crosshair; }
+    canvas { position: absolute; top: 0; left: 0; }
+    kbd { background: #334; padding: 1px 5px; border-radius: 3px; font-size: 10px; color: #aaa; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Editor de Mapa CC</h2>
+  <p class="hint">5 pasadizos verticales + 3 horizontales + 10 entradas. Diseña, exporta SVG.</p>
+
+  <hr>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="active" onclick="showTab('add')">Agregar</button>
+    <button onclick="showTab('edit')">Editar</button>
+    <button onclick="showTab('config')">Config</button>
+    <button onclick="showTab('export')">Exportar</button>
+  </div>
+
+  <!-- TAB: Agregar -->
+  <div class="tab-content active" id="tab-add">
+    <h3>Nuevo bloque</h3>
+    <label>Nombre</label>
+    <input type="text" id="blockName" placeholder="Ej: B-80, Pasillo, Entrada">
+    <label>Tipo</label>
+    <select id="blockType" onchange="onTypeChange()">
+      <option value="tienda">Tienda</option>
+      <option value="pasillo_v">Pasadizo vertical</option>
+      <option value="pasillo_h">Pasadizo horizontal</option>
+      <option value="entrada">Entrada</option>
+      <option value="escalera">Escalera</option>
+      <option value="baño">Baño</option>
+      <option value="karolay">KAROLAY (resaltado)</option>
+    </select>
+    <div class="row">
+      <div><label>Ancho</label><input type="number" id="blockW" value="80" min="10"></div>
+      <div><label>Alto</label><input type="number" id="blockH" value="60" min="10"></div>
+    </div>
+    <div class="row">
+      <div><label>Color</label><input type="color" id="blockColor" value="#333333"></div>
+      <div><label>Texto</label><input type="color" id="blockTextColor" value="#ffffff"></div>
+    </div>
+    <label>Bordes redondos</label>
+    <input type="number" id="blockRadius" value="4" min="0" max="30">
+    <button class="btn btn-primary" onclick="addBlock()">+ Agregar bloque</button>
+    <hr>
+    <h3>Duplicar</h3>
+    <p class="hint">Selecciona un bloque y duplicalo. El clon aparece al lado.</p>
+    <div class="row">
+      <button class="btn btn-outline" onclick="duplicateRight()">Copiar &rarr;</button>
+      <button class="btn btn-outline" onclick="duplicateDown()">Copiar &darr;</button>
+    </div>
+    <div class="row">
+      <button class="btn btn-outline" onclick="duplicateLeft()">Copiar &larr;</button>
+      <button class="btn btn-outline" onclick="duplicateUp()">Copiar &uarr;</button>
+    </div>
+    <label style="margin-top:4px;">Copias seguidas</label>
+    <input type="number" id="dupCount" value="1" min="1" max="20">
+    <label>Espacio entre copias (px)</label>
+    <input type="number" id="dupGap" value="5" min="0" max="100">
+  </div>
+
+  <!-- TAB: Editar -->
+  <div class="tab-content" id="tab-edit">
+    <h3>Bloques (<span id="blockCount">0</span>)</h3>
+    <ul class="block-list" id="blockList"></ul>
+    <div class="row" style="margin-top:4px;">
+      <button class="btn btn-danger btn-sm" onclick="deleteSelected()">Eliminar</button>
+      <button class="btn btn-outline btn-sm" onclick="bringForward()">Traer al frente</button>
+    </div>
+    <hr>
+    <h3>Propiedades</h3>
+    <label>Nombre</label>
+    <input type="text" id="selName" oninput="applyProp()">
+    <div class="row">
+      <div><label>X</label><input type="number" id="selX" oninput="applyProp()"></div>
+      <div><label>Y</label><input type="number" id="selY" oninput="applyProp()"></div>
+    </div>
+    <div class="row">
+      <div><label>Ancho</label><input type="number" id="selW" oninput="applyProp()"></div>
+      <div><label>Alto</label><input type="number" id="selH" oninput="applyProp()"></div>
+    </div>
+    <div class="row">
+      <div><label>Color</label><input type="color" id="selColor" oninput="applyProp()"></div>
+      <div><label>Texto</label><input type="color" id="selTextColor" oninput="applyProp()"></div>
+    </div>
+    <label>Bordes</label>
+    <input type="number" id="selRadius" value="4" min="0" oninput="applyProp()">
+  </div>
+
+  <!-- TAB: Config -->
+  <div class="tab-content" id="tab-config">
+    <h3>Tamaño del mapa</h3>
+    <div class="row">
+      <div><label>Ancho</label><input type="number" id="mapW" value="800" oninput="updateMapSize()"></div>
+      <div><label>Alto</label><input type="number" id="mapH" value="600" oninput="updateMapSize()"></div>
+    </div>
+    <label>Color fondo</label>
+    <input type="color" id="mapBg" value="#201e1e" oninput="updateMapSize()">
+    <label>Grid snap (px)</label>
+    <input type="number" id="gridSnap" value="5" min="1" max="50">
+    <hr>
+    <h3>Generar estructura base</h3>
+    <p class="hint">Genera automáticamente los pasadizos y entradas del CC.</p>
+    <div class="row">
+      <div><label>Pasadizos V</label><input type="number" id="genV" value="5" min="1" max="10"></div>
+      <div><label>Pasadizos H</label><input type="number" id="genH" value="3" min="1" max="10"></div>
+    </div>
+    <div class="row">
+      <div><label>Entradas</label><input type="number" id="genE" value="10" min="0" max="20"></div>
+      <div><label>Ancho pasadizo</label><input type="number" id="genPW" value="30" min="10" max="80"></div>
+    </div>
+    <button class="btn btn-primary" onclick="generateBase()">Generar estructura</button>
+    <p class="hint" style="margin-top:4px;">Esto reemplaza todos los bloques actuales.</p>
+  </div>
+
+  <!-- TAB: Exportar -->
+  <div class="tab-content" id="tab-export">
+    <h3>Exportar</h3>
+    <button class="btn btn-green" onclick="exportSvg()">Descargar SVG</button>
+    <p class="hint">Guárdalo en public/images/mapa/mapa-centro-comercial.svg</p>
+    <hr>
+    <h3>Proyecto</h3>
+    <button class="btn btn-outline" onclick="saveJson()">Guardar proyecto (.json)</button>
+    <button class="btn btn-outline" onclick="document.getElementById('jsonFile').click()">Cargar proyecto (.json)</button>
+    <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="loadJson(event)">
+    <hr>
+    <h3>Limpiar</h3>
+    <button class="btn btn-danger" onclick="if(confirm('¿Borrar todo?')){blocks=[];selectedIdx=-1;updateList();draw();}">Borrar todo</button>
+  </div>
+</div>
+
+<div class="canvas-area">
+  <div class="toolbar">
+    <span>Arrastra bloques | <kbd>Ctrl+D</kbd> duplicar | <kbd>Del</kbd> eliminar | <kbd>Dbl click</kbd> renombrar | Scroll = zoom</span>
+    <div class="sep"></div>
+    <span id="coords">x:0 y:0</span>
+  </div>
+  <div class="canvas-wrap" id="canvasWrap">
+    <canvas id="canvas"></canvas>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const wrap = document.getElementById('canvasWrap');
+
+let MAP_W = 800, MAP_H = 600, MAP_BG = '#201e1e';
+let blocks = [];
+let selectedIdx = -1;
+let dragging = false, dragOffX = 0, dragOffY = 0;
+let scale = 1, panX = 30, panY = 30;
+let isPanning = false, panStartX = 0, panStartY = 0;
+
+const PRESETS = {
+  tienda:    { w: 80,  h: 60,  color: '#333333', textColor: '#ffffff', radius: 4 },
+  pasillo_v: { w: 30,  h: 200, color: '#2a2a2a', textColor: '#444444', radius: 0 },
+  pasillo_h: { w: 200, h: 30,  color: '#2a2a2a', textColor: '#444444', radius: 0 },
+  entrada:   { w: 60,  h: 35,  color: '#3d3d3d', textColor: '#ddb153', radius: 6 },
+  escalera:  { w: 50,  h: 50,  color: '#3a3a3a', textColor: '#777777', radius: 4 },
+  baño:      { w: 50,  h: 40,  color: '#2d2d2d', textColor: '#666666', radius: 4 },
+  karolay:   { w: 100, h: 80,  color: '#9b6d53', textColor: '#ffffff', radius: 8 },
+};
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function onTypeChange() {
+  const p = PRESETS[document.getElementById('blockType').value];
+  document.getElementById('blockW').value = p.w;
+  document.getElementById('blockH').value = p.h;
+  document.getElementById('blockColor').value = p.color;
+  document.getElementById('blockTextColor').value = p.textColor;
+  document.getElementById('blockRadius').value = p.radius;
+}
+
+function snap(v) { const s = parseInt(document.getElementById('gridSnap').value) || 5; return Math.round(v / s) * s; }
+
+function resize() { canvas.width = wrap.clientWidth; canvas.height = wrap.clientHeight; draw(); }
+window.addEventListener('resize', resize);
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(panX, panY);
+  ctx.scale(scale, scale);
+
+  // Background
+  ctx.fillStyle = MAP_BG;
+  ctx.fillRect(0, 0, MAP_W, MAP_H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  const gs = parseInt(document.getElementById('gridSnap').value) || 5;
+  const gridStep = gs < 10 ? gs * 5 : gs;
+  for (let x = 0; x <= MAP_W; x += gridStep) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, MAP_H); ctx.stroke(); }
+  for (let y = 0; y <= MAP_H; y += gridStep) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(MAP_W, y); ctx.stroke(); }
+
+  // Border
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.strokeRect(0, 0, MAP_W, MAP_H);
+
+  // Blocks
+  blocks.forEach((b, i) => {
+    ctx.fillStyle = b.color;
+    if (b.radius > 0) { roundRect(ctx, b.x, b.y, b.w, b.h, b.radius); ctx.fill(); }
+    else { ctx.fillRect(b.x, b.y, b.w, b.h); }
+
+    if (i === selectedIdx) { ctx.strokeStyle = '#ddb153'; ctx.lineWidth = 2; ctx.strokeRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2); }
+
+    // Text
+    if (b.name) {
+      ctx.fillStyle = b.textColor;
+      const maxFs = Math.min(14, b.h * 0.4, b.w / Math.max(b.name.length * 0.6, 1));
+      ctx.font = `bold ${Math.max(6, maxFs)}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.name, b.x + b.w / 2, b.y + b.h / 2, b.w - 6);
+    }
+  });
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function toMap(ex, ey) { const r = canvas.getBoundingClientRect(); return { x: (ex-r.left-panX)/scale, y: (ey-r.top-panY)/scale }; }
+function hitTest(mx, my) { for (let i = blocks.length-1; i >= 0; i--) { const b = blocks[i]; if (mx>=b.x && mx<=b.x+b.w && my>=b.y && my<=b.y+b.h) return i; } return -1; }
+
+// Mouse events
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 1 || (e.button === 0 && e.altKey)) { isPanning = true; panStartX = e.clientX - panX; panStartY = e.clientY - panY; return; }
+  const { x, y } = toMap(e.clientX, e.clientY);
+  const idx = hitTest(x, y);
+  if (idx >= 0) { selectedIdx = idx; dragging = true; dragOffX = x - blocks[idx].x; dragOffY = y - blocks[idx].y; }
+  else { selectedIdx = -1; }
+  updateUI(); draw();
+});
+canvas.addEventListener('mousemove', e => {
+  const { x, y } = toMap(e.clientX, e.clientY);
+  document.getElementById('coords').textContent = `x:${Math.round(x)} y:${Math.round(y)}`;
+  if (isPanning) { panX = e.clientX - panStartX; panY = e.clientY - panStartY; draw(); return; }
+  if (!dragging || selectedIdx < 0) return;
+  blocks[selectedIdx].x = snap(x - dragOffX);
+  blocks[selectedIdx].y = snap(y - dragOffY);
+  updateSelInputs(); draw();
+});
+canvas.addEventListener('mouseup', () => { dragging = false; isPanning = false; });
+canvas.addEventListener('mouseleave', () => { dragging = false; isPanning = false; });
+canvas.addEventListener('dblclick', e => {
+  const { x, y } = toMap(e.clientX, e.clientY);
+  const idx = hitTest(x, y);
+  if (idx >= 0) { const n = prompt('Nombre:', blocks[idx].name); if (n !== null) { blocks[idx].name = n; updateList(); draw(); } }
+});
+canvas.addEventListener('wheel', e => { e.preventDefault(); scale = Math.min(4, Math.max(0.2, scale * (e.deltaY > 0 ? 0.9 : 1.1))); draw(); }, { passive: false });
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'Delete' && selectedIdx >= 0) { deleteSelected(); }
+  if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateRight(); }
+});
+
+// Add block
+function addBlock() {
+  const type = document.getElementById('blockType').value;
+  blocks.push({
+    name: document.getElementById('blockName').value || '',
+    x: snap(50 + Math.random() * 100), y: snap(50 + Math.random() * 100),
+    w: parseInt(document.getElementById('blockW').value),
+    h: parseInt(document.getElementById('blockH').value),
+    color: document.getElementById('blockColor').value,
+    textColor: document.getElementById('blockTextColor').value,
+    radius: parseInt(document.getElementById('blockRadius').value),
+    type,
+  });
+  selectedIdx = blocks.length - 1;
+  document.getElementById('blockName').value = '';
+  updateUI(); draw();
+}
+
+// Duplicate functions
+function duplicateDir(dx, dy) {
+  if (selectedIdx < 0) return;
+  const count = parseInt(document.getElementById('dupCount').value) || 1;
+  const gap = parseInt(document.getElementById('dupGap').value) || 5;
+  const src = blocks[selectedIdx];
+  for (let i = 1; i <= count; i++) {
+    blocks.push({
+      ...JSON.parse(JSON.stringify(src)),
+      x: snap(src.x + (dx * (src.w + gap) * i)),
+      y: snap(src.y + (dy * (src.h + gap) * i)),
+    });
+  }
+  selectedIdx = blocks.length - 1;
+  updateUI(); draw();
+}
+function duplicateRight() { duplicateDir(1, 0); }
+function duplicateDown() { duplicateDir(0, 1); }
+function duplicateLeft() { duplicateDir(-1, 0); }
+function duplicateUp() { duplicateDir(0, -1); }
+
+function deleteSelected() { if (selectedIdx >= 0) { blocks.splice(selectedIdx, 1); selectedIdx = -1; updateUI(); draw(); } }
+function bringForward() { if (selectedIdx >= 0 && selectedIdx < blocks.length - 1) { const b = blocks.splice(selectedIdx, 1)[0]; blocks.push(b); selectedIdx = blocks.length - 1; updateUI(); draw(); } }
+
+// Apply property changes live
+function applyProp() {
+  if (selectedIdx < 0) return;
+  const b = blocks[selectedIdx];
+  b.name = document.getElementById('selName').value;
+  b.x = parseInt(document.getElementById('selX').value) || 0;
+  b.y = parseInt(document.getElementById('selY').value) || 0;
+  b.w = parseInt(document.getElementById('selW').value) || 10;
+  b.h = parseInt(document.getElementById('selH').value) || 10;
+  b.color = document.getElementById('selColor').value;
+  b.textColor = document.getElementById('selTextColor').value;
+  b.radius = parseInt(document.getElementById('selRadius').value) || 0;
+  updateList(); draw();
+}
+
+function updateMapSize() {
+  MAP_W = parseInt(document.getElementById('mapW').value) || 800;
+  MAP_H = parseInt(document.getElementById('mapH').value) || 600;
+  MAP_BG = document.getElementById('mapBg').value;
+  draw();
+}
+
+function updateUI() { updateList(); updateSelInputs(); }
+function updateList() {
+  const ul = document.getElementById('blockList');
+  ul.innerHTML = '';
+  blocks.forEach((b, i) => {
+    const li = document.createElement('li');
+    li.className = i === selectedIdx ? 'sel' : '';
+    li.innerHTML = `<span style="display:flex;align-items:center;gap:4px;"><span class="d" style="background:${b.color}"></span>${b.name || '(sin nombre)'}</span><span style="color:#555">${b.type}</span>`;
+    li.onclick = () => { selectedIdx = i; updateUI(); draw(); };
+    ul.appendChild(li);
+  });
+  document.getElementById('blockCount').textContent = blocks.length;
+}
+function updateSelInputs() {
+  if (selectedIdx < 0) return;
+  const b = blocks[selectedIdx];
+  document.getElementById('selName').value = b.name;
+  document.getElementById('selX').value = Math.round(b.x);
+  document.getElementById('selY').value = Math.round(b.y);
+  document.getElementById('selW').value = b.w;
+  document.getElementById('selH').value = b.h;
+  document.getElementById('selColor').value = b.color;
+  document.getElementById('selTextColor').value = b.textColor;
+  document.getElementById('selRadius').value = b.radius;
+}
+
+// Generate base structure
+function generateBase() {
+  if (!confirm('Esto borrará los bloques actuales. ¿Continuar?')) return;
+  blocks = [];
+  const nV = parseInt(document.getElementById('genV').value) || 5;
+  const nH = parseInt(document.getElementById('genH').value) || 3;
+  const nE = parseInt(document.getElementById('genE').value) || 10;
+  const pw = parseInt(document.getElementById('genPW').value) || 30;
+  const margin = 40;
+  const usableW = MAP_W - margin * 2;
+  const usableH = MAP_H - margin * 2;
+  const spacingV = usableW / nV;
+  const spacingH = usableH / (nH + 1);
+
+  // Horizontal corridors
+  for (let i = 1; i <= nH; i++) {
+    blocks.push({ name: '', x: margin, y: snap(margin + spacingH * i - pw / 2), w: usableW, h: pw, color: '#2a2a2a', textColor: '#444', radius: 0, type: 'pasillo_h' });
+  }
+  // Vertical corridors
+  for (let i = 0; i < nV; i++) {
+    blocks.push({ name: '', x: snap(margin + spacingV * i + spacingV / 2 - pw / 2), y: margin, w: pw, h: usableH, color: '#2a2a2a', textColor: '#444', radius: 0, type: 'pasillo_v' });
+  }
+  // Entrances
+  const entranceSpacing = MAP_W / (nE + 1);
+  for (let i = 1; i <= nE; i++) {
+    blocks.push({ name: 'E-' + i, x: snap(entranceSpacing * i - 25), y: MAP_H - margin - 10, w: 50, h: 30, color: '#3d3d3d', textColor: '#ddb153', radius: 6, type: 'entrada' });
+  }
+  // Karolay placeholder
+  blocks.push({ name: 'KAROLAY', x: snap(margin + spacingV * 0.5), y: snap(margin + spacingH - pw / 2 - 70), w: 100, h: 60, color: '#9b6d53', textColor: '#ffffff', radius: 8, type: 'karolay' });
+
+  selectedIdx = blocks.length - 1;
+  updateUI(); draw();
+}
+
+// Export SVG
+function exportSvg() {
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${MAP_H}" width="${MAP_W}" height="${MAP_H}">\n`;
+  svg += `  <rect width="${MAP_W}" height="${MAP_H}" fill="${MAP_BG}"/>\n`;
+  blocks.forEach(b => {
+    const rx = b.radius > 0 ? ` rx="${b.radius}"` : '';
+    svg += `  <rect x="${Math.round(b.x)}" y="${Math.round(b.y)}" width="${b.w}" height="${b.h}"${rx} fill="${b.color}"/>\n`;
+    if (b.name) {
+      const fs = Math.min(14, b.h * 0.4, b.w / Math.max(b.name.length * 0.6, 1));
+      svg += `  <text x="${Math.round(b.x+b.w/2)}" y="${Math.round(b.y+b.h/2)}" fill="${b.textColor}" font-size="${Math.max(6, Math.round(fs))}" font-weight="bold" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">${b.name}</text>\n`;
+    }
+  });
+  svg += `</svg>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  a.download = 'mapa-centro-comercial.svg';
+  a.click();
+}
+
+function saveJson() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ MAP_W, MAP_H, MAP_BG, blocks }, null, 2)], { type: 'application/json' }));
+  a.download = 'mapa-proyecto.json';
+  a.click();
+}
+function loadJson(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      MAP_W = d.MAP_W || 800; MAP_H = d.MAP_H || 600; MAP_BG = d.MAP_BG || '#201e1e'; blocks = d.blocks || [];
+      document.getElementById('mapW').value = MAP_W; document.getElementById('mapH').value = MAP_H; document.getElementById('mapBg').value = MAP_BG;
+      selectedIdx = -1; updateUI(); draw();
+    } catch(err) { alert('Error: ' + err.message); }
+  };
+  r.readAsText(file);
+}
+
+// Init
+resize();
+generateBase();
+</script>
+</body>
+</html>

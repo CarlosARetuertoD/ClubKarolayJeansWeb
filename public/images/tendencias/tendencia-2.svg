@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a2525"/>
+      <stop offset="50%" style="stop-color:#201e1e"/>
+      <stop offset="100%" style="stop-color:#181515"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9b6d53;stop-opacity:0.25"/>
+      <stop offset="100%" style="stop-color:#9b6d53;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <ellipse cx="300" cy="350" rx="200" ry="250" fill="url(#glow)"/>
+  <rect x="0" y="780" width="600" height="20" fill="#9b6d53" opacity="0.6"/>
+  <rect x="0" y="0" width="600" height="4" fill="#9b6d53" opacity="0.8"/>
+  <!-- Trend label -->
+  <rect x="200" y="100" width="200" height="36" rx="18" fill="#9b6d53" opacity="0.9"/>
+  <text x="300" y="124" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle" letter-spacing="4">TENDENCIA</text>
+  <!-- Wide leg silhouette -->
+  <g transform="translate(300,340)" opacity="0.12">
+    <path d="M-50,-150 L-75,-150 Q-80,-150 -80,-140 L-90,0 L-120,160 L-5,160 L-5,10 L5,10 L5,160 L120,160 L90,0 L80,-140 Q80,-150 75,-150 L50,-150 L35,-135 L-35,-135 Z" fill="#9b6d53" stroke="#9b6d53" stroke-width="2"/>
+  </g>
+  <!-- Main text -->
+  <text x="300" y="560" font-family="'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" fill="#9b6d53" text-anchor="middle" letter-spacing="6">WIDE</text>
+  <text x="300" y="610" font-family="'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" fill="#9b6d53" text-anchor="middle" letter-spacing="6">LEG</text>
+  <text x="300" y="660" font-family="'Helvetica Neue', Arial, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.35" letter-spacing="6">2026 COLLECTION</text>
+</svg>
