@@ -15,11 +15,17 @@ export default function LoginForm() {
   const [error, setError] = useState('')
   const [form, setForm] = useState({ email: '', password: '' })
 
+  const getRedirect = () => {
+    if (typeof window === 'undefined') return '/bio'
+    const params = new URLSearchParams(window.location.search)
+    return params.get('redirect') || '/bio'
+  }
+
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/bio`,
+        redirectTo: `${window.location.origin}${getRedirect()}`,
       },
     })
     if (error) {
@@ -52,7 +58,7 @@ export default function LoginForm() {
       localStorage.setItem('ckj_cliente_id', data.user.id)
     }
 
-    router.push('/bio')
+    router.push(getRedirect())
   }
 
   return (

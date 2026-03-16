@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(DST=\"C:/Users/DELL/OneDrive/Escritorio/Sistemas/ClubKarolayJeansWeb/public/images/catalogo\" && cp \"$DST/../fotos/chica-jean-oscuro.webp\" \"$DST/jeans.webp\" && cp \"$DST/../fotos/jean-madera.webp\" \"$DST/casacas.webp\" && cp \"$DST/../fotos/jean-casual.webp\" \"$DST/bermudas.webp\" && cp \"$DST/../fotos/detalle-bolsillo.webp\" \"$DST/faldas.webp\")",
+      "Bash(mkdir:*)"
+    ]
+  }
+}

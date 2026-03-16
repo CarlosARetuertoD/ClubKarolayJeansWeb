@@ -52,6 +52,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  alternates: {
+    canonical: 'https://www.clubkarolayjeans.com',
+  },
   icons: {
     icon: '/images/favicon.png',
     apple: '/images/apple-touch-icon.png',
@@ -65,6 +68,45 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'ClothingStore',
+              name: 'Club Karolay Jeans',
+              description: 'Tienda especializada en jeans y moda denim para dama y varón en Arequipa.',
+              url: 'https://www.clubkarolayjeans.com',
+              telephone: '+51940403984',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Av. Siglo XX 209-213, C.C. Don Ramón, INT. B-77',
+                addressLocality: 'Arequipa',
+                addressRegion: 'Arequipa',
+                postalCode: '04001',
+                addressCountry: 'PE',
+              },
+              openingHoursSpecification: [
+                {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                  opens: '09:00',
+                  closes: '20:00',
+                },
+                {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: 'Sunday',
+                  opens: '09:00',
+                  closes: '19:00',
+                },
+              ],
+              image: 'https://www.clubkarolayjeans.com/images/hero/hero-lg.webp',
+              priceRange: '$$',
+            }),
+          }}
+        />
+      </head>
       <body className="font-sans antialiased bg-dark text-white">
         <TrackingProvider />
         <SmoothScroll />

@@ -8,9 +8,8 @@ import { supabase } from '@/lib/supabase'
 
 const NAV_LINKS = [
   { href: '/#inicio', label: 'Inicio' },
-  { href: '/#nosotros', label: 'Nosotros' },
+  { href: '/#nosotros', label: 'Sobre Nosotros' },
   { href: '/catalogo', label: 'Catálogo' },
-  { href: '/promociones', label: 'Promos' },
   { href: '/#tendencias', label: 'Tendencias' },
   { href: '/#ubicacion', label: 'Contacto' },
 ]
@@ -22,7 +21,7 @@ export default function Header() {
   const [userName, setUserName] = useState('')
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80)
+    const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -37,7 +36,7 @@ export default function Header() {
           .select('nombre')
           .eq('auth_uid', session.user.id)
           .single()
-        if (data) setUserName(data.nombre.split(' ')[0])
+        if (data?.nombre) setUserName(data.nombre.split(' ')[0])
       }
     }
     checkAuth()
@@ -115,6 +114,16 @@ export default function Header() {
                 </Link>
               </li>
             ))}
+            {loggedIn && (
+              <li>
+                <Link
+                  href="/promociones"
+                  className="block px-5 py-4 text-gold font-heading text-sm font-bold tracking-wide uppercase animate-pulse-glow"
+                >
+                  Promos
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </nav>
@@ -138,6 +147,17 @@ export default function Header() {
                   </Link>
                 </li>
               ))}
+              {loggedIn && (
+                <li>
+                  <Link
+                    href="/promociones"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-3 text-mocha-500 font-heading text-base font-bold transition-colors"
+                  >
+                    Promos
+                  </Link>
+                </li>
+              )}
             </ul>
             <div className="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-200">
               <SocialIcon href={BUSINESS.social.instagram} icon="instagram" dark />

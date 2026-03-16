@@ -39,10 +39,17 @@ export default function RegistroForm() {
     setError('')
 
     try {
-      // 1. Create auth user
+      // 1. Create auth user (sin confirmación de email)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/bio`,
+          data: {
+            nombre: form.nombre,
+            celular: form.celular,
+          },
+        },
       })
 
       if (authError) throw new Error(authError.message)
@@ -100,15 +107,26 @@ export default function RegistroForm() {
               </svg>
             </div>
             <h2 className="text-xl font-heading font-bold text-white mb-2">¡Bienvenido al Club!</h2>
-            <p className="text-white/60 text-sm mb-6">
-              Ya eres miembro de Club Karolay Jeans. Muestra tu tarjeta digital en tienda para tus descuentos.
+            <p className="text-white/60 text-sm mb-2">
+              Tu cuenta ha sido creada exitosamente.
             </p>
-            <Link
-              href="/bio"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gold to-mocha-500 text-white rounded-full font-heading font-semibold hover:scale-105 transition-transform"
-            >
-              Ver mi tarjeta digital
-            </Link>
+            <p className="text-white/40 text-xs mb-6">
+              Si recibiste un correo de confirmación, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta. Si no lo recibes, revisa tu carpeta de spam.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/bio"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gold to-mocha-500 text-white rounded-full font-heading font-semibold hover:scale-105 transition-transform"
+              >
+                Ver mi tarjeta digital
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center px-6 py-3 border border-white/15 text-white/60 rounded-full font-heading font-medium text-sm hover:bg-white/5 transition-all"
+              >
+                Iniciar sesión
+              </Link>
+            </div>
           </div>
         ) : (
           <>
@@ -153,7 +171,7 @@ export default function RegistroForm() {
                   required
                   value={form.celular}
                   onChange={(e) => setForm({ ...form, celular: e.target.value })}
-                  placeholder="940 824 283"
+                  placeholder="940 403 984"
                   className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors placeholder:text-white/30"
                 />
               </div>
