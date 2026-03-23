@@ -41,7 +41,6 @@ export default function Footer() {
                 { href: '/catalogo', label: 'Catálogo' },
                 { href: '/promociones', label: 'Promociones' },
                 { href: '/bio', label: 'Tarjeta Digital' },
-                { href: '/registro', label: 'Club de Clientes' },
               ].map((l) => (
                 <li key={l.href} className="group">
                   <Link

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -8,6 +9,7 @@ import WhatsAppButton from '@/components/WhatsAppButton'
 import { BUSINESS, MARCAS, TENDENCIAS, CLASICOS, PROMOS_DATA, WHATSAPP_URL, WHATSAPP_DEFAULT_MSG } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
+import { supabase } from '@/lib/supabase'
 
 export default function HomePage() {
   return (
@@ -332,6 +334,13 @@ function TendenciasSection() {
    ═══════════════════════════════════════════ */
 function ClubVIPSection() {
   const { ref, visible } = useScrollReveal()
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setLoggedIn(true)
+    })
+  }, [])
 
   return (
     <section
@@ -361,7 +370,9 @@ function ClubVIPSection() {
               Descuentos <span className="text-gold">Exclusivos</span>
             </h2>
             <p className="text-white/45 text-sm sm:text-base leading-relaxed max-w-lg mx-auto md:mx-0 mb-6">
-              Únete al Club y obtén precios especiales en cada visita. Solo muestra tu tarjeta digital en tienda — sin códigos, sin complicaciones.
+              {loggedIn
+                ? 'Ya eres parte del Club. Revisa tus descuentos disponibles y canjéalos en tu próxima visita a tienda.'
+                : 'Crea tu cuenta gratis y recibe un 10% OFF de bienvenida. Además accede a descuentos exclusivos en cada visita — solo muestra tu tarjeta digital en tienda.'}
             </p>
 
             {/* Card preview (mobile only) */}
@@ -369,22 +380,43 @@ function ClubVIPSection() {
               <ClubCard />
             </div>
 
-            {/* CTAs */}
+            {/* CTAs — cambia según auth */}
             <div className="flex flex-col sm:flex-row items-center md:items-start gap-3">
-              <Link
-                href="/registro"
-                onClick={() => trackClick('promo', 'club_vip_cta', '/')}
-                className="group inline-flex items-center gap-2 px-9 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-mocha-950 font-heading font-bold rounded-full hover:scale-105 transition-transform text-sm shadow-lg shadow-gold/20"
-              >
-                Unirme al Club gratis
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-              </Link>
-              <Link
-                href="/bio"
-                className="inline-flex items-center gap-2 px-7 py-3 border border-gold/25 text-gold/70 font-heading font-semibold rounded-full hover:bg-gold/10 transition-all text-sm"
-              >
-                Ver mi tarjeta
-              </Link>
+              {loggedIn ? (
+                <>
+                  <Link
+                    href="/mis-codigos"
+                    onClick={() => trackClick('promo', 'club_vip_mis_codigos', '/')}
+                    className="group inline-flex items-center gap-2 px-9 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-mocha-950 font-heading font-bold rounded-full hover:scale-105 transition-transform text-sm shadow-lg shadow-gold/20"
+                  >
+                    Ver mis descuentos
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </Link>
+                  <Link
+                    href="/bio"
+                    className="inline-flex items-center gap-2 px-7 py-3 border border-gold/25 text-gold/70 font-heading font-semibold rounded-full hover:bg-gold/10 transition-all text-sm"
+                  >
+                    Ver mi tarjeta
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/registro"
+                    onClick={() => trackClick('promo', 'club_vip_cta', '/')}
+                    className="group inline-flex items-center gap-2 px-9 py-3.5 bg-gradient-to-r from-gold to-gold-dark text-mocha-950 font-heading font-bold rounded-full hover:scale-105 transition-transform text-sm shadow-lg shadow-gold/20"
+                  >
+                    Unirme al Club gratis
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </Link>
+                  <Link
+                    href="/bio"
+                    className="inline-flex items-center gap-2 px-7 py-3 border border-gold/25 text-gold/70 font-heading font-semibold rounded-full hover:bg-gold/10 transition-all text-sm"
+                  >
+                    Ver mi tarjeta
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -17,8 +17,19 @@ const NAV_LINKS = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
   const [userName, setUserName] = useState('')
+
+  // Instant load from cache on mount (client only)
+  useEffect(() => {
+    const cached = localStorage.getItem('ckj_user_name')
+    if (cached) {
+      setLoggedIn(true)
+      setUserName(cached)
+      setAuthChecked(true)
+    }
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -27,26 +38,59 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setLoggedIn(true)
-        const { data } = await supabase
-          .from('web_clientes')
-          .select('nombre')
-          .eq('auth_uid', session.user.id)
-          .maybeSingle()
-        if (data?.nombre) {
-          setUserName(data.nombre.split(' ')[0])
-        } else {
-          const fallback = (session.user.user_metadata?.nombre as string)
-            || (session.user.user_metadata?.full_name as string)
-            || ''
-          if (fallback) setUserName(fallback.split(' ')[0])
-        }
+    let resolved = false
+
+    async function loadName(userId: string, userMeta?: Record<string, unknown>) {
+      if (resolved) return
+      resolved = true
+      setLoggedIn(true)
+      setAuthChecked(true)
+
+      const { data } = await supabase
+        .from('web_clientes')
+        .select('nombre')
+        .eq('auth_uid', userId)
+        .maybeSingle()
+
+      let name = ''
+      if (data?.nombre) {
+        name = data.nombre
+      } else {
+        name = (userMeta?.nombre as string)
+          || (userMeta?.full_name as string)
+          || ''
+      }
+
+      if (name) {
+        setUserName(name)
+        localStorage.setItem('ckj_user_name', name)
       }
     }
-    checkAuth()
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        loadName(session.user.id, session.user.user_metadata)
+      } else if (!resolved) {
+        // No session — clear cache
+        localStorage.removeItem('ckj_user_name')
+        setLoggedIn(false)
+        setUserName('')
+        setAuthChecked(true)
+      }
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        loadName(session.user.id, session.user.user_metadata)
+      } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('ckj_user_name')
+        setLoggedIn(false)
+        setUserName('')
+        setAuthChecked(true)
+      }
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   return (
@@ -74,8 +118,10 @@ export default function Header() {
             <SocialIcon href={BUSINESS.social.facebook} icon="facebook" />
           </div>
 
-          {/* Login / Mi cuenta */}
-          {loggedIn ? (
+          {/* Login / Mi cuenta — hidden until auth is checked to avoid flash */}
+          {!authChecked ? (
+            <div className="w-[120px] h-9" />
+          ) : loggedIn ? (
             <Link
               href="/cuenta"
               className="flex items-center gap-2 px-4 py-2 bg-mocha-500/20 border border-mocha-500/30 text-mocha-300 rounded-full text-xs font-heading font-semibold hover:bg-mocha-500/30 transition-all"
@@ -127,7 +173,7 @@ export default function Header() {
                   href="/promociones"
                   className="block px-5 py-4 text-gold font-heading text-sm font-semibold tracking-wide uppercase hover:text-gold-light transition-colors"
                 >
-                  Promos
+                  Promociones
                 </Link>
               </li>
             )}
@@ -161,7 +207,7 @@ export default function Header() {
                     onClick={() => setMenuOpen(false)}
                     className="block px-4 py-3 text-mocha-500 font-heading text-base font-semibold transition-colors"
                   >
-                    Promos
+                    Promociones
                   </Link>
                 </li>
               )}
