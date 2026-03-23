@@ -8,7 +8,7 @@ import { WHATSAPP_URL, BUSINESS } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
 import { supabase } from '@/lib/supabase'
 
-type ClienteData = { nombre: string; email: string } | null
+type ClienteData = { nombre: string; email: string; created_at: string } | null
 
 export default function BioCard() {
   const searchParams = useSearchParams()
@@ -25,22 +25,65 @@ export default function BioCard() {
 
   // Check if user is logged in
   useEffect(() => {
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        const { data } = await supabase
-          .from('web_clientes')
-          .select('nombre, email')
-          .eq('auth_uid', session.user.id)
-          .single()
-        if (data) {
-          setCliente(data)
-          localStorage.setItem('ckj_cliente_id', session.user.id)
-        }
+    let found = false
+
+    async function loadCliente(session: { user: { id: string; email?: string; user_metadata?: Record<string, unknown>; created_at?: string } }) {
+      if (found) return
+      found = true
+      const user = session.user
+      localStorage.setItem('ckj_cliente_id', user.id)
+
+      // Try to get full profile from web_clientes
+      const { data } = await supabase
+        .from('web_clientes')
+        .select('nombre, email, created_at')
+        .eq('auth_uid', user.id)
+        .maybeSingle()
+
+      if (data) {
+        setCliente(data)
+      } else {
+        // RLS blocks the query — fall back to auth session data
+        const nombre = (user.user_metadata?.nombre as string)
+          || (user.user_metadata?.full_name as string)
+          || (user.user_metadata?.name as string)
+          || user.email?.split('@')[0]
+          || 'Miembro'
+        setCliente({
+          nombre,
+          email: user.email || '',
+          created_at: user.created_at || '',
+        })
       }
       setLoading(false)
     }
-    checkSession()
+
+    // Try existing session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        loadCliente(session)
+      }
+    })
+
+    // Listen for session restore
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        loadCliente(session)
+      } else if (event === 'SIGNED_OUT') {
+        setCliente(null)
+        setLoading(false)
+      }
+    })
+
+    // Safety timeout
+    const timeout = setTimeout(() => {
+      if (!found) setLoading(false)
+    }, 5000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   const handleClick = (action: string, href: string, external: boolean) => {
@@ -88,7 +131,7 @@ export default function BioCard() {
           <span className="absolute -top-3 right-3 px-2.5 py-1 rounded-full text-[0.68rem] font-semibold uppercase tracking-[0.08em]" style={{
             background: 'linear-gradient(135deg, #ddb153, #9b6d53)',
           }}>
-            {cliente ? 'Miembro VIP' : 'Miembro VIP'}
+            {cliente ? 'Miembro VIP' : 'Club VIP'}
           </span>
 
           {!loading && cliente ? (
@@ -100,6 +143,11 @@ export default function BioCard() {
                 Muestra esta pantalla en tienda y accede a tus{' '}
                 <strong className="text-[#9b6d53] font-semibold">descuentos de miembro</strong>.
               </p>
+              {cliente.created_at && (
+                <p className="text-[0.72rem] text-white/40 mt-1">
+                  Miembro desde {new Date(cliente.created_at).toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}
+                </p>
+              )}
             </div>
           ) : (
             <p className="text-[0.82rem] leading-[1.5] text-white">
@@ -131,22 +179,44 @@ export default function BioCard() {
           {/* Promos - accent */}
           <button
             onClick={() => handleClick('promos', '/promociones', false)}
-            className="group relative flex items-center w-full rounded-2xl px-3 py-2.5 text-white transition-all duration-150 overflow-hidden"
-            style={{ background: 'rgba(32,30,30,0.96)', border: '1px solid rgba(155,109,83,0.7)', boxShadow: '0 10px 22px rgba(0,0,0,0.6)' }}
+            className="group relative flex items-center w-full rounded-2xl px-3 py-2.5 text-white transition-all duration-200 hover:-translate-y-px active:translate-y-0 overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(221,177,83,0.1), rgba(155,109,83,0.06))',
+              border: '1px solid rgba(221,177,83,0.4)',
+              boxShadow: '0 10px 22px rgba(0,0,0,0.6), inset 0 1px 0 rgba(221,177,83,0.12)',
+            }}
           >
-            <div className="absolute inset-0 left-0 w-[82px] rounded-l-2xl opacity-90 -z-0" style={{ background: 'linear-gradient(135deg, #ddb153, #9b6d53)' }} />
-            <span className="absolute -top-2 right-10 px-2.5 py-1 rounded-full text-[0.66rem] font-bold tracking-[0.08em] uppercase text-white backdrop-blur-md promo-badge" style={{ background: 'rgba(17,10,6,0.55)', border: '1px solid rgba(221,177,83,0.55)' }}>
-              PROMO DEL MES
-            </span>
-            <span className="relative w-[38px] h-[38px] rounded-[14px] flex items-center justify-center mr-[10px] bg-transparent flex-shrink-0">
+            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(221,177,83,0.06), transparent)' }} />
+            <span className="relative w-[38px] h-[38px] rounded-[12px] flex items-center justify-center mr-[10px] flex-shrink-0" style={{ background: 'linear-gradient(135deg, #ddb153, #9b6d53)' }}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
             </span>
-            <span className="relative flex-1 text-left pl-0.5">
-              <span className="block text-[0.95rem] font-semibold">Promociones del mes</span>
-              <span className="block text-[0.78rem] opacity-85 mt-0.5">Descuentos especiales para el Club</span>
+            <span className="relative flex-1 text-left">
+              <span className="flex items-center gap-2">
+                <span className="block text-[0.95rem] font-semibold" style={{ color: '#f0ddb8' }}>Promociones del mes</span>
+                <span className="px-1.5 py-[2px] rounded text-[0.6rem] font-bold uppercase tracking-wider" style={{ background: 'linear-gradient(135deg, #ddb153, #b8863a)', color: '#1a1310' }}>Promo</span>
+              </span>
+              <span className="block text-[0.78rem] text-white/65 mt-0.5">Descuentos especiales para miembros del Club</span>
             </span>
-            <span className="relative text-white/90"><Chevron /></span>
+            <Chevron />
           </button>
+
+          {/* Mis códigos — solo si logueado */}
+          {!loading && cliente && (
+            <button
+              onClick={() => handleClick('mis_codigos', '/mis-codigos', false)}
+              className="group relative flex items-center w-full rounded-2xl px-3 py-2.5 text-white transition-all duration-150 hover:-translate-y-px active:translate-y-0"
+              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              <span className="w-[38px] h-[38px] rounded-[14px] flex items-center justify-center mr-[10px] bg-black/20 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+              </span>
+              <span className="flex-1 text-left">
+                <span className="block text-[0.95rem] font-semibold">Mis códigos de descuento</span>
+                <span className="block text-[0.78rem] opacity-85 mt-0.5">Canjea tus promos en tienda</span>
+              </span>
+              <Chevron />
+            </button>
+          )}
 
           {/* WhatsApp */}
           <button
@@ -155,7 +225,7 @@ export default function BioCard() {
             style={{ background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.4)', color: '#e9fff3' }}
           >
             <span className="w-[38px] h-[38px] rounded-[14px] flex items-center justify-center mr-[10px] flex-shrink-0" style={{ background: 'rgba(37,211,102,0.16)' }}>
-              <svg className="w-5 h-5 text-[#25d366]" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+              <svg className="w-5 h-5 text-[#25d366]" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
             </span>
             <span className="flex-1 text-left">
               <span className="block text-[0.95rem] font-semibold">Escríbenos por WhatsApp</span>
@@ -191,7 +261,7 @@ export default function BioCard() {
             </span>
             <span className="flex-1 text-left">
               <span className="block text-[0.95rem] font-semibold">¿Dónde estamos?</span>
-              <span className="block text-[0.78rem] opacity-85 mt-0.5">Ver ubicación en el mapa</span>
+              <span className="block text-[0.78rem] opacity-85 mt-0.5">Ver mapa del centro comercial</span>
             </span>
             <ExternalArrow />
           </button>
@@ -201,7 +271,7 @@ export default function BioCard() {
         {!loading && !cliente && (
           <div className="flex flex-col gap-2 mb-4">
             <Link
-              href="/login"
+              href="/login?redirect=/bio"
               className="block text-center py-3 rounded-2xl text-sm font-heading font-semibold transition-all hover:opacity-90"
               style={{ background: 'linear-gradient(135deg, #ddb153, #9b6d53)', color: '#fff' }}
             >
@@ -221,6 +291,18 @@ export default function BioCard() {
         <footer className="text-center text-[0.78rem] text-white/80 pt-2.5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <p className="font-semibold mb-1">Tarjeta del Club Karolay Jeans</p>
           <p className="opacity-80">Guarda este enlace o QR para tus próximas visitas.</p>
+          {!loading && cliente && (
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut()
+                localStorage.removeItem('ckj_cliente_id')
+                setCliente(null)
+              }}
+              className="mt-3 text-white/25 text-[0.7rem] hover:text-white/50 transition-colors"
+            >
+              Cerrar sesión
+            </button>
+          )}
         </footer>
       </section>
     </main>

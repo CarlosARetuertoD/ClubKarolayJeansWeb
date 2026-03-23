@@ -15,6 +15,9 @@ export default function RegistroForm() {
   const [form, setForm] = useState({
     nombre: '',
     celular: '',
+    dni: '',
+    fecha_nacimiento: '',
+    genero: '' as '' | 'dama' | 'varon',
     email: '',
     password: '',
   })
@@ -24,7 +27,7 @@ export default function RegistroForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/registro?auth=success`,
+        redirectTo: `${window.location.origin}/bio`,
       },
     })
     if (error) {
@@ -54,16 +57,23 @@ export default function RegistroForm() {
 
       if (authError) throw new Error(authError.message)
 
-      // 2. Save client data
-      const { error: dbError } = await supabase.from('web_clientes').insert({
-        nombre: form.nombre,
-        celular: form.celular,
-        email: form.email,
-        auth_provider: 'email',
-        auth_uid: authData.user?.id || null,
+      // 2. Save client data + auto-create welcome bonus via API
+      const regRes = await fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          celular: form.celular,
+          dni: form.dni || null,
+          fecha_nacimiento: form.fecha_nacimiento || null,
+          genero: form.genero || null,
+          email: form.email,
+          auth_provider: 'email',
+          auth_uid: authData.user?.id || null,
+        }),
       })
-
-      if (dbError) throw new Error(dbError.message)
+      const regData = await regRes.json()
+      if (!regRes.ok) throw new Error(regData.error || 'Error al guardar datos')
 
       // 3. Save client ID for tracking
       if (authData.user?.id) {
@@ -174,6 +184,40 @@ export default function RegistroForm() {
                   placeholder="940 403 984"
                   className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors placeholder:text-white/30"
                 />
+              </div>
+              <div>
+                <label className="block text-white/70 text-sm mb-1.5">DNI <span className="text-white/30">(opcional)</span></label>
+                <input
+                  type="text"
+                  maxLength={8}
+                  value={form.dni}
+                  onChange={(e) => setForm({ ...form, dni: e.target.value.replace(/\D/g, '') })}
+                  placeholder="12345678"
+                  className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors placeholder:text-white/30"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-white/70 text-sm mb-1.5">Fecha de nacimiento <span className="text-white/30">(opcional)</span></label>
+                  <input
+                    type="date"
+                    value={form.fecha_nacimiento}
+                    onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
+                    className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white/70 text-sm mb-1.5">Género <span className="text-white/30">(opcional)</span></label>
+                  <select
+                    value={form.genero}
+                    onChange={(e) => setForm({ ...form, genero: e.target.value as '' | 'dama' | 'varon' })}
+                    className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors"
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="dama">Dama</option>
+                    <option value="varon">Varón</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="block text-white/70 text-sm mb-1.5">Correo electrónico</label>

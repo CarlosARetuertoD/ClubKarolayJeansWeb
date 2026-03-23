@@ -35,8 +35,15 @@ export default function Header() {
           .from('web_clientes')
           .select('nombre')
           .eq('auth_uid', session.user.id)
-          .single()
-        if (data?.nombre) setUserName(data.nombre.split(' ')[0])
+          .maybeSingle()
+        if (data?.nombre) {
+          setUserName(data.nombre.split(' ')[0])
+        } else {
+          const fallback = (session.user.user_metadata?.nombre as string)
+            || (session.user.user_metadata?.full_name as string)
+            || ''
+          if (fallback) setUserName(fallback.split(' ')[0])
+        }
       }
     }
     checkAuth()
@@ -70,7 +77,7 @@ export default function Header() {
           {/* Login / Mi cuenta */}
           {loggedIn ? (
             <Link
-              href="/bio"
+              href="/cuenta"
               className="flex items-center gap-2 px-4 py-2 bg-mocha-500/20 border border-mocha-500/30 text-mocha-300 rounded-full text-xs font-heading font-semibold hover:bg-mocha-500/30 transition-all"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -80,7 +87,7 @@ export default function Header() {
             </Link>
           ) : (
             <Link
-              href="/login"
+              href="/login?redirect=/"
               className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 text-white/70 rounded-full text-xs font-heading font-semibold hover:bg-white/10 hover:text-white transition-all"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -118,7 +125,7 @@ export default function Header() {
               <li>
                 <Link
                   href="/promociones"
-                  className="block px-5 py-4 text-gold font-heading text-sm font-bold tracking-wide uppercase animate-pulse-glow"
+                  className="block px-5 py-4 text-gold font-heading text-sm font-semibold tracking-wide uppercase hover:text-gold-light transition-colors"
                 >
                   Promos
                 </Link>
@@ -152,7 +159,7 @@ export default function Header() {
                   <Link
                     href="/promociones"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-4 py-3 text-mocha-500 font-heading text-base font-bold transition-colors"
+                    className="block px-4 py-3 text-mocha-500 font-heading text-base font-semibold transition-colors"
                   >
                     Promos
                   </Link>

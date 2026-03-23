@@ -40,7 +40,7 @@ function HeroSection() {
           <source media="(max-width: 640px)" srcSet="/images/hero/hero-sm.webp" type="image/webp" />
           <source media="(max-width: 1024px)" srcSet="/images/hero/hero-md.webp" type="image/webp" />
           <source srcSet="/images/hero/hero-lg.webp" type="image/webp" />
-          <img src="/images/hero/hero-lg.png" alt="" className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" decoding="async" />
+          <img src="/images/hero/hero-lg.png" alt="Club Karolay Jeans — Tienda de jeans y moda denim para dama y varón en Arequipa" className="absolute inset-0 w-full h-full object-cover" fetchPriority="high" decoding="async" />
         </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
       </div>
@@ -57,6 +57,7 @@ function HeroSection() {
           </p>
           <h1 className="font-heading font-extrabold text-mocha-500 text-[3.5rem] sm:text-7xl md:text-8xl lg:text-[8.5rem] tracking-tight leading-[0.85] animate-scale-in" style={{ animationDelay: '0.4s' }}>
             KAROLAY
+            <span className="sr-only"> — Tienda de jeans y moda denim en Arequipa, Perú</span>
           </h1>
           <p className="font-heading font-semibold text-white text-xl sm:text-2xl md:text-3xl tracking-[0.3em] uppercase text-right -mt-1 sm:-mt-2 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             Jeans

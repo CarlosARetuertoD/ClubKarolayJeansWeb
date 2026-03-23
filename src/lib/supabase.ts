@@ -32,8 +32,35 @@ export type WebCliente = {
   nombre: string
   celular: string
   email: string | null
+  dni: string | null
+  fecha_nacimiento: string | null
+  genero: 'dama' | 'varon' | null
   auth_provider: 'email' | 'google'
   auth_uid: string | null
+  created_at?: string
+}
+
+export type WebCodigoPromo = {
+  id?: string
+  codigo: string
+  tipo: 'bienvenida' | 'cumpleanos' | 'campana'
+  descuento: string
+  descripcion: string | null
+  cliente_id: string | null
+  activo: boolean
+  fecha_inicio: string
+  fecha_fin: string | null
+  canjeado: boolean
+  fecha_canje: string | null
+  created_at?: string
+}
+
+export type WebCanjeToken = {
+  id?: string
+  codigo_promo_id: string
+  token: string
+  expires_at: string
+  canjeado: boolean
   created_at?: string
 }
 

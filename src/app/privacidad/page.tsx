@@ -5,7 +5,9 @@ import { BUSINESS } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad',
-  description: 'Política de privacidad y protección de datos personales de Club Karolay Jeans.',
+  description: 'Política de privacidad y protección de datos personales de Club Karolay Jeans, conforme a la Ley N.° 29733 de Protección de Datos Personales del Perú.',
+  alternates: { canonical: 'https://www.clubkarolayjeans.com/privacidad' },
+  robots: { index: true, follow: true },
 }
 
 export default function PrivacidadPage() {

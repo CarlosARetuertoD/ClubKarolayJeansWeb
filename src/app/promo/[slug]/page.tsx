@@ -8,8 +8,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     .join(' ')
 
   return {
-    title: `Promo: ${title}`,
-    description: `Promoción especial de Club Karolay Jeans: ${title}. Descubre los detalles y aprovecha esta oferta exclusiva.`,
+    title: `${title} — Promoción Exclusiva en Jeans`,
+    description: `Promoción ${title} en Club Karolay Jeans, Arequipa. Aprovecha esta oferta exclusiva en jeans y moda denim. Descuentos especiales para miembros del Club VIP.`,
+    alternates: { canonical: `https://www.clubkarolayjeans.com/promo/${params.slug}` },
+    openGraph: {
+      title: `${title} | Club Karolay Jeans`,
+      description: `Promoción exclusiva: ${title}. Ofertas en jeans y moda denim en Arequipa.`,
+      url: `https://www.clubkarolayjeans.com/promo/${params.slug}`,
+    },
   }
 }
 

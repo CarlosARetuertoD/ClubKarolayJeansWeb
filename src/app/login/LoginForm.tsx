@@ -18,10 +18,12 @@ export default function LoginForm() {
   const getRedirect = () => {
     if (typeof window === 'undefined') return '/bio'
     const params = new URLSearchParams(window.location.search)
-    return params.get('redirect') || '/bio'
+    const redirect = params.get('redirect') || '/bio'
+    return redirect.startsWith('/') ? redirect : '/bio'
   }
 
   const handleGoogleLogin = async () => {
+    setStep('loading')
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

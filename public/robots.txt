@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /cuenta
+Disallow: /login
+Disallow: /api/
 
 Sitemap: https://www.clubkarolayjeans.com/sitemap.xml
