@@ -57,7 +57,7 @@ src/
 |------|-------------|------|
 | `/` | Landing principal | No |
 | `/catalogo` | Catalogo de productos | No |
-| `/promociones` | Promociones exclusivas | Si |
+| `/promociones` | Promociones (dinamica: codigos si logueado, registro si no) | No |
 | `/registro` | Registro al club (auto-genera bono bienvenida) | No |
 | `/login` | Inicio de sesion | No |
 | `/cuenta` | Datos personales, cambio contraseña, enlaces rapidos | Si |
@@ -150,10 +150,13 @@ Centralizados en `src/lib/constants.ts`:
 ## Funcionalidades
 
 - **Club VIP**: Registro con email/password o Google. Miembros acceden a promos exclusivas.
-- **Tarjeta digital**: Los miembros muestran su tarjeta en `/bio` para obtener descuentos en tienda. Saludo personalizado, "Miembro desde...", boton de cerrar sesion.
-- **Codigos promo**: Sistema completo de codigos de descuento con QR temporal (5 min). Gestion desde RedelERP.
+- **Tarjeta digital** (`/bio`): Standalone tipo Linktree. Logo clickeable a inicio. Saludo con nombre completo, "Miembro desde..." alineado a la derecha. Botones: catalogo, redes (modal con Instagram/TikTok/Facebook), promos+codigos (solo logueado), WhatsApp, ubicacion. Cache en localStorage para carga instantanea sin parpadeo. Cerrar sesion limpia todo el cache.
+- **Promociones** (`/promociones`): Pagina dinamica. Si logueado: muestra codigos disponibles con boton "Canjear en tienda" (genera QR). Si no: muestra "Crea tu cuenta gratis" con beneficios.
+- **Landing Club VIP**: Seccion dinamica. Si logueado: "Ver mis descuentos" → /mis-codigos. Si no: "Unirme al Club gratis" → /registro.
+- **Codigos promo**: Sistema completo de codigos de descuento con QR temporal (5 min). Personales y globales. Gestion desde RedelERP.
 - **Bono de bienvenida**: 10% OFF automatico al registrarse, valido 30 dias.
 - **Mi cuenta**: Editar nombre, celular, DNI, fecha nacimiento, genero. Cambio de contraseña (solo email auth). Enlaces rapidos a tarjeta, codigos y promos.
+- **Cache de auth**: Nombre de usuario y datos de bio en localStorage. Carga instantanea sin flash al recargar. Se limpia al cerrar sesion.
 - **Tracking**: Registro de clics, visitas, scans QR en Supabase. Parametro `?ref=` para tracking de QR fisicos.
 - **Libro de reclamaciones**: Formulario de 5 pasos conforme a Ley N. 29571. Acceso solo por QR en tienda.
 - **SEO**: JSON-LD (ClothingStore + WebSite), Open Graph por pagina, canonical, sitemap dinamico, robots.txt.

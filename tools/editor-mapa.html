@@ -7,7 +7,7 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; color: #eee; display: flex; height: 100vh; overflow: hidden; }
-    .sidebar { width: 320px; background: #16213e; padding: 14px; overflow-y: auto; border-right: 1px solid #334; display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+    .sidebar { width: 340px; background: #16213e; padding: 14px; overflow-y: auto; border-right: 1px solid #334; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
     .sidebar h2 { font-size: 14px; color: #9b6d53; text-transform: uppercase; letter-spacing: 2px; }
     .sidebar h3 { font-size: 11px; color: #aaa; margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
     label { display: block; color: #999; margin-bottom: 2px; font-size: 11px; }
@@ -23,11 +23,15 @@
     .btn-outline { background: transparent; border: 1px solid #444; color: #aaa; }
     .btn-outline:hover { background: #253; color: #eee; }
     .btn-sm { padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; }
+    .btn-blue { background: #2980b9; color: white; }
+    .btn-blue:hover { background: #1f6da0; }
     .row { display: flex; gap: 5px; }
     .row > * { flex: 1; }
+    .row3 { display: flex; gap: 3px; }
+    .row3 > * { flex: 1; }
     hr { border: none; border-top: 1px solid #2a2a4a; margin: 4px 0; }
     .hint { font-size: 10px; color: #555; }
-    .block-list { list-style: none; max-height: 180px; overflow-y: auto; }
+    .block-list { list-style: none; max-height: 200px; overflow-y: auto; }
     .block-list li { padding: 5px 7px; background: #0f3460; border-radius: 3px; margin-bottom: 2px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; border: 1px solid transparent; font-size: 11px; }
     .block-list li:hover { border-color: #9b6d53; }
     .block-list li.sel { border-color: #ddb153; background: #1a3a6e; }
@@ -40,24 +44,24 @@
     .canvas-area { flex: 1; display: flex; flex-direction: column; }
     .toolbar { padding: 6px 12px; background: #16213e; border-bottom: 1px solid #334; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: #666; }
     .toolbar .sep { width: 1px; height: 18px; background: #334; }
-    .canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #111; cursor: crosshair; }
+    .canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #111; }
     canvas { position: absolute; top: 0; left: 0; }
     kbd { background: #334; padding: 1px 5px; border-radius: 3px; font-size: 10px; color: #aaa; }
+    .section-title { font-size: 10px; color: #9b6d53; text-transform: uppercase; letter-spacing: 2px; margin: 6px 0 4px; padding-bottom: 3px; border-bottom: 1px solid #2a2a4a; }
   </style>
 </head>
 <body>
 
 <div class="sidebar">
   <h2>Editor de Mapa CC</h2>
-  <p class="hint">5 pasadizos verticales + 3 horizontales + 10 entradas. Diseña, exporta SVG.</p>
+  <p class="hint">Diseña el croquis interior. Arrastra bordes para redimensionar. <kbd>Ctrl+C/V</kbd> copiar/pegar.</p>
 
   <hr>
-  <!-- Tabs -->
   <div class="tabs">
-    <button class="active" onclick="showTab('add')">Agregar</button>
-    <button onclick="showTab('edit')">Editar</button>
-    <button onclick="showTab('config')">Config</button>
-    <button onclick="showTab('export')">Exportar</button>
+    <button class="active" onclick="showTab('add',this)">Agregar</button>
+    <button onclick="showTab('edit',this)">Editar</button>
+    <button onclick="showTab('config',this)">Config</button>
+    <button onclick="showTab('export',this)">Exportar</button>
   </div>
 
   <!-- TAB: Agregar -->
@@ -67,54 +71,93 @@
     <input type="text" id="blockName" placeholder="Ej: B-80, Pasillo, Entrada">
     <label>Tipo</label>
     <select id="blockType" onchange="onTypeChange()">
-      <option value="tienda">Tienda</option>
+      <option value="tienda">Tienda / Stand</option>
       <option value="pasillo_v">Pasadizo vertical</option>
       <option value="pasillo_h">Pasadizo horizontal</option>
-      <option value="entrada">Entrada</option>
+      <option value="entrada">Entrada / Puerta</option>
       <option value="escalera">Escalera</option>
       <option value="baño">Baño</option>
       <option value="karolay">KAROLAY (resaltado)</option>
+      <option value="marker">Marcador "Estás aquí"</option>
+      <option value="area">Área / Zona</option>
+      <option value="texto">Solo texto</option>
+      <option value="matriz">Matriz de stands</option>
     </select>
     <div class="row">
-      <div><label>Ancho</label><input type="number" id="blockW" value="80" min="10"></div>
-      <div><label>Alto</label><input type="number" id="blockH" value="60" min="10"></div>
+      <div><label>Ancho</label><input type="number" id="blockW" value="40" min="5"></div>
+      <div><label>Alto</label><input type="number" id="blockH" value="30" min="5"></div>
     </div>
     <div class="row">
       <div><label>Color</label><input type="color" id="blockColor" value="#333333"></div>
       <div><label>Texto</label><input type="color" id="blockTextColor" value="#ffffff"></div>
     </div>
-    <label>Bordes redondos</label>
-    <input type="number" id="blockRadius" value="4" min="0" max="30">
+    <div class="row">
+      <div><label>Bordes</label><input type="number" id="blockRadius" value="2" min="0" max="30"></div>
+      <div><label>Rotación°</label><input type="number" id="blockRotation" value="0" min="0" max="359" step="15"></div>
+    </div>
     <button class="btn btn-primary" onclick="addBlock()">+ Agregar bloque</button>
+
     <hr>
-    <h3>Duplicar</h3>
-    <p class="hint">Selecciona un bloque y duplicalo. El clon aparece al lado.</p>
+    <div class="section-title">Matriz de stands</div>
+    <p class="hint">Genera una grilla como un solo bloque. Muévelo y redimensiónalo entero.</p>
     <div class="row">
-      <button class="btn btn-outline" onclick="duplicateRight()">Copiar &rarr;</button>
-      <button class="btn btn-outline" onclick="duplicateDown()">Copiar &darr;</button>
+      <div><label>Columnas</label><input type="number" id="matCols" value="6" min="1" max="30"></div>
+      <div><label>Filas</label><input type="number" id="matRows" value="2" min="1" max="30"></div>
     </div>
     <div class="row">
-      <button class="btn btn-outline" onclick="duplicateLeft()">Copiar &larr;</button>
-      <button class="btn btn-outline" onclick="duplicateUp()">Copiar &uarr;</button>
+      <div><label>Separación</label><input type="number" id="matGap" value="2" min="0" max="10"></div>
+      <div><label>Desde #</label><input type="number" id="matStart" value="1" min="0" max="999"></div>
     </div>
-    <label style="margin-top:4px;">Copias seguidas</label>
-    <input type="number" id="dupCount" value="1" min="1" max="20">
-    <label>Espacio entre copias (px)</label>
-    <input type="number" id="dupGap" value="5" min="0" max="100">
+    <label>Prefijo nombre</label>
+    <input type="text" id="matPrefix" value="B-" placeholder="Ej: B-, A-, Stand ">
+    <label><input type="checkbox" id="matShowNumbers" checked> Mostrar numeración</label>
+    <button class="btn btn-primary" onclick="generateMatrix()">Generar matriz</button>
+    <p class="hint">Después redimensiona con el mouse para ajustar el tamaño.</p>
+
+    <hr>
+    <div class="section-title">Duplicar</div>
+    <p class="hint">Selecciona un bloque y duplícalo.</p>
+    <div class="row">
+      <button class="btn btn-outline" onclick="duplicateRight()">→</button>
+      <button class="btn btn-outline" onclick="duplicateDown()">↓</button>
+      <button class="btn btn-outline" onclick="duplicateLeft()">←</button>
+      <button class="btn btn-outline" onclick="duplicateUp()">↑</button>
+    </div>
+    <div class="row">
+      <div><label>Copias</label><input type="number" id="dupCount" value="1" min="1" max="30"></div>
+      <div><label>Espacio (px)</label><input type="number" id="dupGap" value="2" min="0" max="100"></div>
+    </div>
   </div>
 
   <!-- TAB: Editar -->
   <div class="tab-content" id="tab-edit">
     <h3>Bloques (<span id="blockCount">0</span>)</h3>
+    <input type="text" id="blockSearch" placeholder="Buscar bloque..." oninput="updateList()">
     <ul class="block-list" id="blockList"></ul>
-    <div class="row" style="margin-top:4px;">
+    <div class="row3" style="margin-top:4px;">
       <button class="btn btn-danger btn-sm" onclick="deleteSelected()">Eliminar</button>
-      <button class="btn btn-outline btn-sm" onclick="bringForward()">Traer al frente</button>
+      <button class="btn btn-outline btn-sm" onclick="bringForward()">↑ Frente</button>
+      <button class="btn btn-outline btn-sm" onclick="sendBack()">↓ Fondo</button>
     </div>
+
     <hr>
-    <h3>Propiedades</h3>
+    <div class="section-title">Propiedades</div>
     <label>Nombre</label>
     <input type="text" id="selName" oninput="applyProp()">
+    <label>Tipo</label>
+    <select id="selType" onchange="applyProp()">
+      <option value="tienda">Tienda</option>
+      <option value="pasillo_v">Pasadizo V</option>
+      <option value="pasillo_h">Pasadizo H</option>
+      <option value="entrada">Entrada</option>
+      <option value="escalera">Escalera</option>
+      <option value="baño">Baño</option>
+      <option value="karolay">KAROLAY</option>
+      <option value="marker">Marcador</option>
+      <option value="area">Área</option>
+      <option value="texto">Texto</option>
+      <option value="matriz">Matriz</option>
+    </select>
     <div class="row">
       <div><label>X</label><input type="number" id="selX" oninput="applyProp()"></div>
       <div><label>Y</label><input type="number" id="selY" oninput="applyProp()"></div>
@@ -127,57 +170,91 @@
       <div><label>Color</label><input type="color" id="selColor" oninput="applyProp()"></div>
       <div><label>Texto</label><input type="color" id="selTextColor" oninput="applyProp()"></div>
     </div>
-    <label>Bordes</label>
-    <input type="number" id="selRadius" value="4" min="0" oninput="applyProp()">
+    <div class="row">
+      <div><label>Bordes</label><input type="number" id="selRadius" value="2" min="0" oninput="applyProp()"></div>
+      <div><label>Rotación°</label><input type="number" id="selRotation" value="0" min="0" max="359" step="15" oninput="applyProp()"></div>
+    </div>
+    <div class="row">
+      <div><label>Tamaño letra (0=auto)</label><input type="number" id="selFontSize" value="0" min="0" max="60" oninput="applyProp()"></div>
+    </div>
+
+    <hr>
+    <div class="section-title">Alinear seleccionado</div>
+    <div class="row3">
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('left')">← Izq</button>
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('centerH')">↔ Centro</button>
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('right')">→ Der</button>
+    </div>
+    <div class="row3" style="margin-top:2px;">
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('top')">↑ Arriba</button>
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('centerV')">↕ Centro</button>
+      <button class="btn btn-outline btn-sm" onclick="alignBlock('bottom')">↓ Abajo</button>
+    </div>
   </div>
 
   <!-- TAB: Config -->
   <div class="tab-content" id="tab-config">
     <h3>Tamaño del mapa</h3>
     <div class="row">
-      <div><label>Ancho</label><input type="number" id="mapW" value="800" oninput="updateMapSize()"></div>
-      <div><label>Alto</label><input type="number" id="mapH" value="600" oninput="updateMapSize()"></div>
+      <div><label>Ancho</label><input type="number" id="mapW" value="900" oninput="updateMapSize()"></div>
+      <div><label>Alto</label><input type="number" id="mapH" value="1000" oninput="updateMapSize()"></div>
     </div>
     <label>Color fondo</label>
-    <input type="color" id="mapBg" value="#201e1e" oninput="updateMapSize()">
+    <input type="color" id="mapBg" value="#1c1917" oninput="updateMapSize()">
     <label>Grid snap (px)</label>
     <input type="number" id="gridSnap" value="5" min="1" max="50">
+    <label><input type="checkbox" id="showGrid" checked onchange="draw()"> Mostrar grilla</label>
+
     <hr>
-    <h3>Generar estructura base</h3>
-    <p class="hint">Genera automáticamente los pasadizos y entradas del CC.</p>
+    <div class="section-title">Leyenda</div>
+    <label><input type="checkbox" id="showLegend" checked> Incluir leyenda en SVG</label>
+    <label>Título del mapa</label>
+    <input type="text" id="mapTitle" value="C.C. Don Ramón — Planta Baja" placeholder="Título superior del mapa">
+
+    <hr>
+    <div class="section-title">Generar estructura base</div>
+    <p class="hint">Genera pasadizos, entradas y el puesto de Karolay.</p>
     <div class="row">
       <div><label>Pasadizos V</label><input type="number" id="genV" value="5" min="1" max="10"></div>
       <div><label>Pasadizos H</label><input type="number" id="genH" value="3" min="1" max="10"></div>
     </div>
     <div class="row">
       <div><label>Entradas</label><input type="number" id="genE" value="10" min="0" max="20"></div>
-      <div><label>Ancho pasadizo</label><input type="number" id="genPW" value="30" min="10" max="80"></div>
+      <div><label>Ancho pasadizo</label><input type="number" id="genPW" value="25" min="10" max="80"></div>
     </div>
     <button class="btn btn-primary" onclick="generateBase()">Generar estructura</button>
-    <p class="hint" style="margin-top:4px;">Esto reemplaza todos los bloques actuales.</p>
+    <p class="hint" style="margin-top:4px;">Reemplaza todos los bloques actuales.</p>
   </div>
 
   <!-- TAB: Exportar -->
   <div class="tab-content" id="tab-export">
-    <h3>Exportar</h3>
+    <div class="section-title">Exportar SVG</div>
     <button class="btn btn-green" onclick="exportSvg()">Descargar SVG</button>
-    <p class="hint">Guárdalo en public/images/mapa/mapa-centro-comercial.svg</p>
+    <p class="hint">Guárdalo en <code>public/images/mapa/mapa-centro-comercial.svg</code></p>
+    <button class="btn btn-blue" style="margin-top:4px;" onclick="exportPng()">Descargar PNG</button>
+    <p class="hint">Alternativa en imagen rasterizada.</p>
+
     <hr>
-    <h3>Proyecto</h3>
+    <div class="section-title">Proyecto</div>
     <button class="btn btn-outline" onclick="saveJson()">Guardar proyecto (.json)</button>
     <button class="btn btn-outline" onclick="document.getElementById('jsonFile').click()">Cargar proyecto (.json)</button>
     <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="loadJson(event)">
     <hr>
-    <h3>Limpiar</h3>
-    <button class="btn btn-danger" onclick="if(confirm('¿Borrar todo?')){blocks=[];selectedIdx=-1;updateList();draw();}">Borrar todo</button>
+    <button class="btn btn-outline" onclick="autoSave()">Guardar en navegador</button>
+    <button class="btn btn-outline" onclick="autoLoad()">Restaurar del navegador</button>
+    <p class="hint">Se guarda automáticamente cada 30s en localStorage.</p>
+    <hr>
+    <button class="btn btn-danger" onclick="if(confirm('¿Borrar todo?')){pushUndo();blocks=[];selectedIdx=-1;updateList();draw();}">Borrar todo</button>
   </div>
 </div>
 
 <div class="canvas-area">
   <div class="toolbar">
-    <span>Arrastra bloques | <kbd>Ctrl+D</kbd> duplicar | <kbd>Del</kbd> eliminar | <kbd>Dbl click</kbd> renombrar | Scroll = zoom</span>
+    <span><kbd>Ctrl+C/V</kbd> copiar/pegar | <kbd>Ctrl+Z/Y</kbd> deshacer/rehacer | <kbd>Del</kbd> eliminar | <kbd>R</kbd> rotar | <kbd>Dbl click</kbd> renombrar | Scroll = zoom | Arrastra bordes = redimensionar</span>
     <div class="sep"></div>
     <span id="coords">x:0 y:0</span>
+    <div class="sep"></div>
+    <span id="undoInfo">↩0 ↪0</span>
   </div>
   <div class="canvas-wrap" id="canvasWrap">
     <canvas id="canvas"></canvas>
@@ -189,37 +266,123 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const wrap = document.getElementById('canvasWrap');
 
-let MAP_W = 800, MAP_H = 600, MAP_BG = '#201e1e';
+let MAP_W = 900, MAP_H = 1000, MAP_BG = '#1c1917';
 let blocks = [];
 let selectedIdx = -1;
 let dragging = false, dragOffX = 0, dragOffY = 0;
 let scale = 1, panX = 30, panY = 30;
 let isPanning = false, panStartX = 0, panStartY = 0;
 
+// Resize handles
+let resizing = false;
+let resizeHandle = ''; // 'n','s','e','w','ne','nw','se','sw'
+const HANDLE_SIZE = 7; // px on screen for grab zone
+
+// Copy/Paste clipboard
+let clipboard = null;
+
+// Undo / Redo
+let undoStack = [], redoStack = [];
+const MAX_UNDO = 50;
+
+function pushUndo() {
+  undoStack.push(JSON.stringify(blocks));
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+  redoStack = [];
+  updateUndoInfo();
+}
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(JSON.stringify(blocks));
+  blocks = JSON.parse(undoStack.pop());
+  selectedIdx = -1; updateUI(); draw();
+}
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(JSON.stringify(blocks));
+  blocks = JSON.parse(redoStack.pop());
+  selectedIdx = -1; updateUI(); draw();
+}
+function updateUndoInfo() {
+  document.getElementById('undoInfo').textContent = `↩${undoStack.length} ↪${redoStack.length}`;
+}
+
 const PRESETS = {
-  tienda:    { w: 80,  h: 60,  color: '#333333', textColor: '#ffffff', radius: 4 },
-  pasillo_v: { w: 30,  h: 200, color: '#2a2a2a', textColor: '#444444', radius: 0 },
-  pasillo_h: { w: 200, h: 30,  color: '#2a2a2a', textColor: '#444444', radius: 0 },
-  entrada:   { w: 60,  h: 35,  color: '#3d3d3d', textColor: '#ddb153', radius: 6 },
-  escalera:  { w: 50,  h: 50,  color: '#3a3a3a', textColor: '#777777', radius: 4 },
-  baño:      { w: 50,  h: 40,  color: '#2d2d2d', textColor: '#666666', radius: 4 },
-  karolay:   { w: 100, h: 80,  color: '#9b6d53', textColor: '#ffffff', radius: 8 },
+  tienda:    { w: 40,  h: 30,  color: '#3a3a3a', textColor: '#cccccc', radius: 2, rotation: 0 },
+  pasillo_v: { w: 25,  h: 150, color: '#2a2723', textColor: '#555555', radius: 0, rotation: 0 },
+  pasillo_h: { w: 150, h: 25,  color: '#2a2723', textColor: '#555555', radius: 0, rotation: 0 },
+  entrada:   { w: 40,  h: 20,  color: '#4a4540', textColor: '#ddb153', radius: 4, rotation: 0 },
+  escalera:  { w: 35,  h: 35,  color: '#353030', textColor: '#888888', radius: 3, rotation: 0 },
+  baño:      { w: 35,  h: 30,  color: '#2d2828', textColor: '#777777', radius: 3, rotation: 0 },
+  karolay:   { w: 60,  h: 45,  color: '#9b6d53', textColor: '#ffffff', radius: 5, rotation: 0 },
+  marker:    { w: 20,  h: 20,  color: '#e74c3c', textColor: '#ffffff', radius: 10, rotation: 0 },
+  area:      { w: 100, h: 70,  color: '#2a2520', textColor: '#555555', radius: 4, rotation: 0 },
+  texto:     { w: 80,  h: 18,  color: 'transparent', textColor: '#999999', radius: 0, rotation: 0 },
 };
 
-function showTab(name) {
+const ICONS = {
+  escalera: (ctx, cx, cy, size) => {
+    const s = size * 0.35;
+    ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.5; ctx.beginPath();
+    for (let i = 0; i < 4; i++) { const y = cy-s+(i*s*0.5); ctx.moveTo(cx-s*0.5+i*s*0.15,y); ctx.lineTo(cx+s*0.5-i*s*0.15,y); }
+    ctx.moveTo(cx-s*0.5,cy-s); ctx.lineTo(cx-s*0.2,cy+s*0.5);
+    ctx.moveTo(cx+s*0.5,cy-s); ctx.lineTo(cx+s*0.2,cy+s*0.5); ctx.stroke();
+  },
+  baño: (ctx, cx, cy, size) => {
+    const s = size * 0.15; ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.2;
+    const offX = s * 2.2;
+    // Hombre (izquierda)
+    const mx = cx - offX;
+    ctx.beginPath(); ctx.arc(mx, cy-s*2, s*0.6, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mx,cy-s*1.2); ctx.lineTo(mx,cy+s*0.8);
+    ctx.moveTo(mx-s*0.9,cy-s*0.3); ctx.lineTo(mx+s*0.9,cy-s*0.3);
+    ctx.moveTo(mx,cy+s*0.8); ctx.lineTo(mx-s*0.7,cy+s*2.2);
+    ctx.moveTo(mx,cy+s*0.8); ctx.lineTo(mx+s*0.7,cy+s*2.2); ctx.stroke();
+    // Mujer (derecha)
+    const fx = cx + offX;
+    ctx.beginPath(); ctx.arc(fx, cy-s*2, s*0.6, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(fx,cy-s*1.2); ctx.lineTo(fx,cy-s*0.1);
+    ctx.moveTo(fx-s*0.9,cy-s*0.3); ctx.lineTo(fx+s*0.9,cy-s*0.3);
+    // Falda (triángulo)
+    ctx.moveTo(fx-s*1.1,cy+s*1.2); ctx.lineTo(fx,cy-s*0.1); ctx.lineTo(fx+s*1.1,cy+s*1.2);
+    // Piernas debajo de falda
+    ctx.moveTo(fx-s*0.5,cy+s*1.2); ctx.lineTo(fx-s*0.5,cy+s*2.2);
+    ctx.moveTo(fx+s*0.5,cy+s*1.2); ctx.lineTo(fx+s*0.5,cy+s*2.2); ctx.stroke();
+    // Línea divisora
+    ctx.beginPath(); ctx.setLineDash([2,2]);
+    ctx.moveTo(cx,cy-s*2.5); ctx.lineTo(cx,cy+s*2.5); ctx.stroke();
+    ctx.setLineDash([]);
+  },
+  entrada: (ctx, cx, cy, size) => {
+    const s = size * 0.25; ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1.5; ctx.beginPath();
+    ctx.moveTo(cx-s,cy+s); ctx.lineTo(cx-s,cy-s); ctx.lineTo(cx+s,cy-s); ctx.lineTo(cx+s,cy+s);
+    ctx.moveTo(cx-s*0.3,cy); ctx.lineTo(cx+s*0.5,cy);
+    ctx.moveTo(cx+s*0.1,cy-s*0.4); ctx.lineTo(cx+s*0.5,cy); ctx.lineTo(cx+s*0.1,cy+s*0.4); ctx.stroke();
+  },
+  marker: (ctx, cx, cy, size) => {
+    const s = size * 0.35;
+    ctx.beginPath(); ctx.arc(cx,cy,s,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx,cy,s*0.4,0,Math.PI*2); ctx.fill();
+  },
+  karolay: null
+};
+
+function showTab(name, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 
 function onTypeChange() {
   const p = PRESETS[document.getElementById('blockType').value];
+  if (!p) return;
   document.getElementById('blockW').value = p.w;
   document.getElementById('blockH').value = p.h;
-  document.getElementById('blockColor').value = p.color;
+  document.getElementById('blockColor').value = p.color === 'transparent' ? '#1c1917' : p.color;
   document.getElementById('blockTextColor').value = p.textColor;
   document.getElementById('blockRadius').value = p.radius;
+  document.getElementById('blockRotation').value = p.rotation;
 }
 
 function snap(v) { const s = parseInt(document.getElementById('gridSnap').value) || 5; return Math.round(v / s) * s; }
@@ -227,101 +390,360 @@ function snap(v) { const s = parseInt(document.getElementById('gridSnap').value)
 function resize() { canvas.width = wrap.clientWidth; canvas.height = wrap.clientHeight; draw(); }
 window.addEventListener('resize', resize);
 
+// ─── DRAW ───
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.translate(panX, panY);
   ctx.scale(scale, scale);
 
-  // Background
   ctx.fillStyle = MAP_BG;
   ctx.fillRect(0, 0, MAP_W, MAP_H);
 
-  // Grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 0.5;
-  const gs = parseInt(document.getElementById('gridSnap').value) || 5;
-  const gridStep = gs < 10 ? gs * 5 : gs;
-  for (let x = 0; x <= MAP_W; x += gridStep) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, MAP_H); ctx.stroke(); }
-  for (let y = 0; y <= MAP_H; y += gridStep) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(MAP_W, y); ctx.stroke(); }
+  if (document.getElementById('showGrid').checked) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 0.5;
+    const gs = parseInt(document.getElementById('gridSnap').value) || 5;
+    const gridStep = gs < 10 ? gs * 5 : gs;
+    for (let x = 0; x <= MAP_W; x += gridStep) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,MAP_H); ctx.stroke(); }
+    for (let y = 0; y <= MAP_H; y += gridStep) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(MAP_W,y); ctx.stroke(); }
+  }
 
-  // Border
   ctx.strokeStyle = '#444'; ctx.lineWidth = 1; ctx.strokeRect(0, 0, MAP_W, MAP_H);
 
-  // Blocks
   blocks.forEach((b, i) => {
-    ctx.fillStyle = b.color;
-    if (b.radius > 0) { roundRect(ctx, b.x, b.y, b.w, b.h, b.radius); ctx.fill(); }
-    else { ctx.fillRect(b.x, b.y, b.w, b.h); }
+    ctx.save();
+    if (b.rotation) { const cx=b.x+b.w/2,cy=b.y+b.h/2; ctx.translate(cx,cy); ctx.rotate(b.rotation*Math.PI/180); ctx.translate(-cx,-cy); }
 
-    if (i === selectedIdx) { ctx.strokeStyle = '#ddb153'; ctx.lineWidth = 2; ctx.strokeRect(b.x - 1, b.y - 1, b.w + 2, b.h + 2); }
+    // ─── MATRIZ TYPE: draw grid of cells ───
+    if (b.type === 'matriz') {
+      const cols = b.matCols || 1, rows = b.matRows || 1;
+      const gap = b.matGap || 2;
+      const cellW = (b.w - (cols-1)*gap) / cols;
+      const cellH = (b.h - (rows-1)*gap) / rows;
+      let num = b.matStart || 1;
+      const prefix = b.matPrefix || '';
 
-    // Text
-    if (b.name) {
-      ctx.fillStyle = b.textColor;
-      const maxFs = Math.min(14, b.h * 0.4, b.w / Math.max(b.name.length * 0.6, 1));
-      ctx.font = `bold ${Math.max(6, maxFs)}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(b.name, b.x + b.w / 2, b.y + b.h / 2, b.w - 6);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = b.x + c * (cellW + gap);
+          const cy = b.y + r * (cellH + gap);
+
+          ctx.fillStyle = b.color;
+          if (b.radius > 0) { roundRect(ctx,cx,cy,cellW,cellH,Math.min(b.radius,cellW/2,cellH/2)); ctx.fill(); }
+          else ctx.fillRect(cx, cy, cellW, cellH);
+
+          // Border
+          ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.5;
+          if (b.radius > 0) { roundRect(ctx,cx,cy,cellW,cellH,Math.min(b.radius,cellW/2,cellH/2)); ctx.stroke(); }
+          else ctx.strokeRect(cx, cy, cellW, cellH);
+
+          // Cell label
+          if (b.matShowNumbers !== false) {
+            const label = prefix + num;
+            ctx.fillStyle = b.textColor;
+            const fs = Math.max(5, Math.min(11, cellH * 0.4, cellW / Math.max(label.length * 0.55, 1)));
+            ctx.font = `bold ${fs}px 'Segoe UI',sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(label, cx + cellW/2, cy + cellH/2, cellW - 2);
+          }
+          num++;
+        }
+      }
     }
+    // ─── NORMAL BLOCKS ───
+    else {
+      if (b.color !== 'transparent') {
+        ctx.fillStyle = b.color;
+        if (b.type === 'karolay') {
+          const grad = ctx.createLinearGradient(b.x,b.y,b.x+b.w,b.y+b.h);
+          grad.addColorStop(0,'#b07d5a'); grad.addColorStop(0.5,'#9b6d53'); grad.addColorStop(1,'#7a5240');
+          ctx.fillStyle = grad;
+        }
+        if (b.radius > 0) { roundRect(ctx,b.x,b.y,b.w,b.h,Math.min(b.radius,b.w/2,b.h/2)); ctx.fill(); }
+        else ctx.fillRect(b.x,b.y,b.w,b.h);
+
+        if (b.type==='tienda'||b.type==='area') {
+          ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=0.5;
+          if (b.radius>0) { roundRect(ctx,b.x,b.y,b.w,b.h,Math.min(b.radius,b.w/2,b.h/2)); ctx.stroke(); }
+          else ctx.strokeRect(b.x,b.y,b.w,b.h);
+        }
+      }
+
+      if (b.type === 'karolay') {
+        ctx.shadowColor='#9b6d53'; ctx.shadowBlur=12; ctx.strokeStyle='#ddb153'; ctx.lineWidth=2;
+        if (b.radius>0) { roundRect(ctx,b.x,b.y,b.w,b.h,Math.min(b.radius,b.w/2,b.h/2)); ctx.stroke(); }
+        else ctx.strokeRect(b.x,b.y,b.w,b.h);
+        ctx.shadowBlur=0;
+      }
+
+      const iconFn = ICONS[b.type];
+      if (iconFn) {
+        ctx.fillStyle = b.textColor;
+        const iconSize = Math.min(b.w, b.h);
+        if (b.type==='marker') iconFn(ctx,b.x+b.w/2,b.y+b.h/2,iconSize);
+        else { const iy = b.name ? b.y+b.h*0.35 : b.y+b.h/2; iconFn(ctx,b.x+b.w/2,iy,iconSize); }
+      }
+
+      if (b.name) {
+        ctx.fillStyle = b.textColor;
+        const lines = b.name.split('\n');
+        const isVertical = b.h > b.w * 2 && b.type !== 'marker';
+        const hasIcon = ICONS[b.type] && b.type !== 'marker';
+        const customFs = b.fontSize || 0;
+
+        if (customFs > 0) {
+          // Manual font size
+          ctx.font = `bold ${customFs}px 'Segoe UI',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          if (lines.length > 1) {
+            const ty = b.y+b.h/2 - (lines.length-1)*customFs*0.6;
+            lines.forEach((line, li) => ctx.fillText(line, b.x+b.w/2, ty+li*(customFs+2)));
+          } else {
+            ctx.fillText(b.name, b.x+b.w/2, b.y+b.h/2);
+          }
+        } else if (isVertical) {
+          ctx.save(); ctx.translate(b.x+b.w/2,b.y+b.h/2); ctx.rotate(-Math.PI/2);
+          const fs = Math.max(6, Math.min(14, b.w*0.45, b.h/Math.max(b.name.length*0.6,1)));
+          ctx.font = `bold ${fs}px 'Segoe UI',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(b.name,0,0,b.h-6); ctx.restore();
+        } else if (lines.length > 1) {
+          const maxFs = Math.min(12, b.h*0.25, b.w/Math.max(Math.max(...lines.map(l=>l.length))*0.55,1));
+          const fs = Math.max(6, maxFs);
+          ctx.font = `bold ${fs}px 'Segoe UI',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          const ty = hasIcon ? b.y+b.h*0.55 : b.y+b.h/2 - (lines.length-1)*fs*0.5;
+          lines.forEach((line, li) => ctx.fillText(line, b.x+b.w/2, ty+li*(fs+2), b.w-4));
+        } else {
+          const ty = hasIcon ? b.y+b.h*0.7 : b.y+b.h/2;
+          const fs = Math.max(6, Math.min(14, b.h*(hasIcon?0.3:0.4), b.w/Math.max(b.name.length*0.55,1)));
+          ctx.font = `bold ${fs}px 'Segoe UI',sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.fillText(b.name, b.x+b.w/2, ty, b.w-4);
+        }
+      }
+    }
+
+    // Selection: dashed border + resize handles
+    if (i === selectedIdx) {
+      ctx.strokeStyle='#ddb153'; ctx.lineWidth=2; ctx.setLineDash([4,3]);
+      ctx.strokeRect(b.x-2,b.y-2,b.w+4,b.h+4);
+      ctx.setLineDash([]);
+      const hs = HANDLE_SIZE / scale;
+      const handles = getHandlePositions(b, hs);
+      ctx.fillStyle = '#ddb153';
+      for (const h of handles) { ctx.fillRect(h.x-hs/2,h.y-hs/2,hs,hs); }
+    }
+
+    ctx.restore();
   });
+
+  const title = document.getElementById('mapTitle').value;
+  if (title) {
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='bold 14px "Segoe UI",sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText(title, MAP_W/2, 8);
+  }
   ctx.restore();
 }
 
-function roundRect(ctx, x, y, w, h, r) {
+function roundRect(ctx,x,y,w,h,r) {
   ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
   ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
   ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
-function toMap(ex, ey) { const r = canvas.getBoundingClientRect(); return { x: (ex-r.left-panX)/scale, y: (ey-r.top-panY)/scale }; }
-function hitTest(mx, my) { for (let i = blocks.length-1; i >= 0; i--) { const b = blocks[i]; if (mx>=b.x && mx<=b.x+b.w && my>=b.y && my<=b.y+b.h) return i; } return -1; }
+// ─── RESIZE HANDLES ───
+function getHandlePositions(b, hs) {
+  return [
+    { id: 'nw', x: b.x,         y: b.y },
+    { id: 'n',  x: b.x+b.w/2,   y: b.y },
+    { id: 'ne', x: b.x+b.w,     y: b.y },
+    { id: 'e',  x: b.x+b.w,     y: b.y+b.h/2 },
+    { id: 'se', x: b.x+b.w,     y: b.y+b.h },
+    { id: 's',  x: b.x+b.w/2,   y: b.y+b.h },
+    { id: 'sw', x: b.x,         y: b.y+b.h },
+    { id: 'w',  x: b.x,         y: b.y+b.h/2 },
+  ];
+}
 
-// Mouse events
+function hitHandle(mx, my) {
+  if (selectedIdx < 0) return '';
+  const b = blocks[selectedIdx];
+  const hs = (HANDLE_SIZE + 4) / scale; // slightly bigger grab zone
+  const handles = getHandlePositions(b, hs);
+  for (const h of handles) {
+    if (Math.abs(mx - h.x) <= hs/2 && Math.abs(my - h.y) <= hs/2) return h.id;
+  }
+  return '';
+}
+
+function getResizeCursor(handle) {
+  const map = { n:'ns-resize', s:'ns-resize', e:'ew-resize', w:'ew-resize', ne:'nesw-resize', sw:'nesw-resize', nw:'nwse-resize', se:'nwse-resize' };
+  return map[handle] || 'crosshair';
+}
+
+function toMap(ex, ey) { const r = canvas.getBoundingClientRect(); return { x: (ex-r.left-panX)/scale, y: (ey-r.top-panY)/scale }; }
+
+function hitTest(mx, my) {
+  for (let i = blocks.length-1; i >= 0; i--) {
+    const b = blocks[i];
+    if (b.rotation) {
+      const cx=b.x+b.w/2,cy=b.y+b.h/2; const a=-b.rotation*Math.PI/180;
+      const dx=mx-cx,dy=my-cy;
+      const rx=dx*Math.cos(a)-dy*Math.sin(a)+cx, ry=dx*Math.sin(a)+dy*Math.cos(a)+cy;
+      if (rx>=b.x&&rx<=b.x+b.w&&ry>=b.y&&ry<=b.y+b.h) return i;
+    } else {
+      if (mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h) return i;
+    }
+  }
+  return -1;
+}
+
+// ─── MOUSE EVENTS ───
+let resizeStart = null; // { x, y, bx, by, bw, bh }
+
 canvas.addEventListener('mousedown', e => {
-  if (e.button === 1 || (e.button === 0 && e.altKey)) { isPanning = true; panStartX = e.clientX - panX; panStartY = e.clientY - panY; return; }
-  const { x, y } = toMap(e.clientX, e.clientY);
+  if (e.button===1 || (e.button===0&&e.altKey)) { isPanning=true; panStartX=e.clientX-panX; panStartY=e.clientY-panY; canvas.style.cursor='grabbing'; return; }
+
+  const {x,y} = toMap(e.clientX, e.clientY);
+
+  // Check resize handles first (only if block is selected)
+  if (selectedIdx >= 0) {
+    const handle = hitHandle(x, y);
+    if (handle) {
+      resizing = true;
+      resizeHandle = handle;
+      const b = blocks[selectedIdx];
+      resizeStart = { x, y, bx: b.x, by: b.y, bw: b.w, bh: b.h };
+      pushUndo();
+      return;
+    }
+  }
+
   const idx = hitTest(x, y);
-  if (idx >= 0) { selectedIdx = idx; dragging = true; dragOffX = x - blocks[idx].x; dragOffY = y - blocks[idx].y; }
-  else { selectedIdx = -1; }
+  if (idx >= 0) { pushUndo(); selectedIdx=idx; dragging=true; dragOffX=x-blocks[idx].x; dragOffY=y-blocks[idx].y; }
+  else { selectedIdx=-1; }
   updateUI(); draw();
 });
-canvas.addEventListener('mousemove', e => {
-  const { x, y } = toMap(e.clientX, e.clientY);
-  document.getElementById('coords').textContent = `x:${Math.round(x)} y:${Math.round(y)}`;
-  if (isPanning) { panX = e.clientX - panStartX; panY = e.clientY - panStartY; draw(); return; }
-  if (!dragging || selectedIdx < 0) return;
-  blocks[selectedIdx].x = snap(x - dragOffX);
-  blocks[selectedIdx].y = snap(y - dragOffY);
-  updateSelInputs(); draw();
-});
-canvas.addEventListener('mouseup', () => { dragging = false; isPanning = false; });
-canvas.addEventListener('mouseleave', () => { dragging = false; isPanning = false; });
-canvas.addEventListener('dblclick', e => {
-  const { x, y } = toMap(e.clientX, e.clientY);
-  const idx = hitTest(x, y);
-  if (idx >= 0) { const n = prompt('Nombre:', blocks[idx].name); if (n !== null) { blocks[idx].name = n; updateList(); draw(); } }
-});
-canvas.addEventListener('wheel', e => { e.preventDefault(); scale = Math.min(4, Math.max(0.2, scale * (e.deltaY > 0 ? 0.9 : 1.1))); draw(); }, { passive: false });
 
-// Keyboard
+canvas.addEventListener('mousemove', e => {
+  const {x,y} = toMap(e.clientX, e.clientY);
+  document.getElementById('coords').textContent = `x:${Math.round(x)} y:${Math.round(y)}`;
+
+  if (isPanning) { panX=e.clientX-panStartX; panY=e.clientY-panStartY; draw(); return; }
+
+  // Resizing
+  if (resizing && selectedIdx >= 0 && resizeStart) {
+    const b = blocks[selectedIdx];
+    const dx = x - resizeStart.x;
+    const dy = y - resizeStart.y;
+    const minSize = 8;
+    const h = resizeHandle;
+
+    if (h.includes('e')) { b.w = Math.max(minSize, snap(resizeStart.bw + dx)); }
+    if (h.includes('w')) { const nw = Math.max(minSize, snap(resizeStart.bw - dx)); b.x = snap(resizeStart.bx + resizeStart.bw - nw); b.w = nw; }
+    if (h.includes('s')) { b.h = Math.max(minSize, snap(resizeStart.bh + dy)); }
+    if (h.includes('n')) { const nh = Math.max(minSize, snap(resizeStart.bh - dy)); b.y = snap(resizeStart.by + resizeStart.bh - nh); b.h = nh; }
+
+    updateSelInputs(); draw(); return;
+  }
+
+  // Dragging
+  if (dragging && selectedIdx >= 0) {
+    blocks[selectedIdx].x = snap(x - dragOffX);
+    blocks[selectedIdx].y = snap(y - dragOffY);
+    updateSelInputs(); draw(); return;
+  }
+
+  // Hover cursor for resize handles
+  if (selectedIdx >= 0) {
+    const handle = hitHandle(x, y);
+    if (handle) { canvas.style.cursor = getResizeCursor(handle); return; }
+  }
+  const hover = hitTest(x, y);
+  canvas.style.cursor = hover >= 0 ? 'move' : 'crosshair';
+});
+
+canvas.addEventListener('mouseup', () => { dragging=false; isPanning=false; resizing=false; resizeStart=null; resizeHandle=''; });
+canvas.addEventListener('mouseleave', () => { dragging=false; isPanning=false; resizing=false; resizeStart=null; });
+
+canvas.addEventListener('dblclick', e => {
+  const {x,y} = toMap(e.clientX, e.clientY);
+  const idx = hitTest(x, y);
+  if (idx >= 0) { const n = prompt('Nombre:', blocks[idx].name); if (n !== null) { pushUndo(); blocks[idx].name = n; updateList(); draw(); } }
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const {x,y} = toMap(e.clientX, e.clientY);
+  const oldScale = scale;
+  scale = Math.min(5, Math.max(0.15, scale * (e.deltaY > 0 ? 0.9 : 1.1)));
+  panX += (x * oldScale - x * scale);
+  panY += (y * oldScale - y * scale);
+  draw();
+}, { passive: false });
+
+// ─── KEYBOARD ───
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
   if (e.key === 'Delete' && selectedIdx >= 0) { deleteSelected(); }
   if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateRight(); }
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+  if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+
+  // Ctrl+C copy
+  if (e.ctrlKey && (e.key === 'c' || e.code === 'KeyC')) {
+    if (selectedIdx >= 0) {
+      e.preventDefault(); e.stopPropagation();
+      clipboard = JSON.parse(JSON.stringify(blocks[selectedIdx]));
+      document.getElementById('coords').textContent = 'Copiado!';
+    }
+  }
+  // Ctrl+V paste
+  if (e.ctrlKey && (e.key === 'v' || e.code === 'KeyV')) {
+    if (clipboard) {
+      e.preventDefault(); e.stopPropagation();
+      pushUndo();
+      const copy = JSON.parse(JSON.stringify(clipboard));
+      copy.x = snap(copy.x + 20);
+      copy.y = snap(copy.y + 20);
+      blocks.push(copy);
+      clipboard = copy; // para pegar múltiples veces en cascada
+      selectedIdx = blocks.length - 1;
+      updateUI(); draw();
+      document.getElementById('coords').textContent = 'Pegado!';
+    }
+  }
+
+  if ((e.key === 'r' || e.key === 'R') && selectedIdx >= 0) {
+    pushUndo();
+    blocks[selectedIdx].rotation = ((blocks[selectedIdx].rotation || 0) + 15) % 360;
+    updateSelInputs(); draw();
+  }
+
+  if (selectedIdx >= 0 && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+    e.preventDefault();
+    const step = e.shiftKey ? 1 : parseInt(document.getElementById('gridSnap').value) || 5;
+    pushUndo();
+    if (e.key==='ArrowUp') blocks[selectedIdx].y -= step;
+    if (e.key==='ArrowDown') blocks[selectedIdx].y += step;
+    if (e.key==='ArrowLeft') blocks[selectedIdx].x -= step;
+    if (e.key==='ArrowRight') blocks[selectedIdx].x += step;
+    updateSelInputs(); draw();
+  }
 });
 
-// Add block
+// ─── BLOCK OPERATIONS ───
 function addBlock() {
+  pushUndo();
   const type = document.getElementById('blockType').value;
+  const colorVal = document.getElementById('blockColor').value;
   blocks.push({
     name: document.getElementById('blockName').value || '',
-    x: snap(50 + Math.random() * 100), y: snap(50 + Math.random() * 100),
+    x: snap(50 + Math.random()*100), y: snap(50 + Math.random()*100),
     w: parseInt(document.getElementById('blockW').value),
     h: parseInt(document.getElementById('blockH').value),
-    color: document.getElementById('blockColor').value,
+    color: type === 'texto' ? 'transparent' : colorVal,
     textColor: document.getElementById('blockTextColor').value,
     radius: parseInt(document.getElementById('blockRadius').value),
+    rotation: parseInt(document.getElementById('blockRotation').value) || 0,
     type,
   });
   selectedIdx = blocks.length - 1;
@@ -329,35 +751,70 @@ function addBlock() {
   updateUI(); draw();
 }
 
-// Duplicate functions
+// ─── MATRIX GENERATOR ───
+function generateMatrix() {
+  const cols = parseInt(document.getElementById('matCols').value) || 6;
+  const rows = parseInt(document.getElementById('matRows').value) || 2;
+  const gap = parseInt(document.getElementById('matGap').value) || 2;
+  const startNum = parseInt(document.getElementById('matStart').value) || 1;
+  const prefix = document.getElementById('matPrefix').value || '';
+
+  // Default cell size 40x30, total block = cols*40 + (cols-1)*gap, rows*30 + (rows-1)*gap
+  const cellW = 40, cellH = 30;
+  const totalW = cols * cellW + (cols - 1) * gap;
+  const totalH = rows * cellH + (rows - 1) * gap;
+
+  pushUndo();
+  blocks.push({
+    name: '', x: snap(50), y: snap(50),
+    w: totalW, h: totalH,
+    color: '#3a3a3a', textColor: '#cccccc',
+    radius: 0, rotation: 0, type: 'matriz',
+    matCols: cols, matRows: rows, matGap: gap,
+    matPrefix: prefix, matStart: startNum,
+    matShowNumbers: document.getElementById('matShowNumbers').checked,
+  });
+  selectedIdx = blocks.length - 1;
+  updateUI(); draw();
+}
+
 function duplicateDir(dx, dy) {
   if (selectedIdx < 0) return;
+  pushUndo();
   const count = parseInt(document.getElementById('dupCount').value) || 1;
-  const gap = parseInt(document.getElementById('dupGap').value) || 5;
+  const gap = parseInt(document.getElementById('dupGap').value) || 2;
   const src = blocks[selectedIdx];
   for (let i = 1; i <= count; i++) {
-    blocks.push({
-      ...JSON.parse(JSON.stringify(src)),
-      x: snap(src.x + (dx * (src.w + gap) * i)),
-      y: snap(src.y + (dy * (src.h + gap) * i)),
-    });
+    blocks.push({ ...JSON.parse(JSON.stringify(src)), x: snap(src.x + dx*(src.w+gap)*i), y: snap(src.y + dy*(src.h+gap)*i) });
   }
   selectedIdx = blocks.length - 1;
   updateUI(); draw();
 }
-function duplicateRight() { duplicateDir(1, 0); }
-function duplicateDown() { duplicateDir(0, 1); }
-function duplicateLeft() { duplicateDir(-1, 0); }
-function duplicateUp() { duplicateDir(0, -1); }
+function duplicateRight() { duplicateDir(1,0); }
+function duplicateDown()  { duplicateDir(0,1); }
+function duplicateLeft()  { duplicateDir(-1,0); }
+function duplicateUp()    { duplicateDir(0,-1); }
 
-function deleteSelected() { if (selectedIdx >= 0) { blocks.splice(selectedIdx, 1); selectedIdx = -1; updateUI(); draw(); } }
-function bringForward() { if (selectedIdx >= 0 && selectedIdx < blocks.length - 1) { const b = blocks.splice(selectedIdx, 1)[0]; blocks.push(b); selectedIdx = blocks.length - 1; updateUI(); draw(); } }
+function deleteSelected() { if (selectedIdx>=0) { pushUndo(); blocks.splice(selectedIdx,1); selectedIdx=-1; updateUI(); draw(); } }
+function bringForward() { if (selectedIdx>=0 && selectedIdx<blocks.length-1) { pushUndo(); const b=blocks.splice(selectedIdx,1)[0]; blocks.push(b); selectedIdx=blocks.length-1; updateUI(); draw(); } }
+function sendBack() { if (selectedIdx>0) { pushUndo(); const b=blocks.splice(selectedIdx,1)[0]; blocks.unshift(b); selectedIdx=0; updateUI(); draw(); } }
 
-// Apply property changes live
+function alignBlock(mode) {
+  if (selectedIdx < 0) return;
+  pushUndo(); const b = blocks[selectedIdx];
+  switch(mode) {
+    case 'left': b.x=0; break; case 'right': b.x=MAP_W-b.w; break;
+    case 'top': b.y=0; break; case 'bottom': b.y=MAP_H-b.h; break;
+    case 'centerH': b.x=(MAP_W-b.w)/2; break; case 'centerV': b.y=(MAP_H-b.h)/2; break;
+  }
+  updateSelInputs(); draw();
+}
+
 function applyProp() {
   if (selectedIdx < 0) return;
   const b = blocks[selectedIdx];
   b.name = document.getElementById('selName').value;
+  b.type = document.getElementById('selType').value;
   b.x = parseInt(document.getElementById('selX').value) || 0;
   b.y = parseInt(document.getElementById('selY').value) || 0;
   b.w = parseInt(document.getElementById('selW').value) || 10;
@@ -365,118 +822,328 @@ function applyProp() {
   b.color = document.getElementById('selColor').value;
   b.textColor = document.getElementById('selTextColor').value;
   b.radius = parseInt(document.getElementById('selRadius').value) || 0;
+  b.rotation = parseInt(document.getElementById('selRotation').value) || 0;
+  b.fontSize = parseInt(document.getElementById('selFontSize').value) || 0;
   updateList(); draw();
 }
 
 function updateMapSize() {
-  MAP_W = parseInt(document.getElementById('mapW').value) || 800;
-  MAP_H = parseInt(document.getElementById('mapH').value) || 600;
+  MAP_W = parseInt(document.getElementById('mapW').value) || 900;
+  MAP_H = parseInt(document.getElementById('mapH').value) || 650;
   MAP_BG = document.getElementById('mapBg').value;
   draw();
 }
 
-function updateUI() { updateList(); updateSelInputs(); }
+function updateUI() { updateList(); updateSelInputs(); updateUndoInfo(); }
+
 function updateList() {
   const ul = document.getElementById('blockList');
+  const search = (document.getElementById('blockSearch').value||'').toLowerCase();
   ul.innerHTML = '';
-  blocks.forEach((b, i) => {
+  blocks.forEach((b,i) => {
+    if (search && !(b.name||'').toLowerCase().includes(search) && !b.type.toLowerCase().includes(search)) return;
     const li = document.createElement('li');
-    li.className = i === selectedIdx ? 'sel' : '';
-    li.innerHTML = `<span style="display:flex;align-items:center;gap:4px;"><span class="d" style="background:${b.color}"></span>${b.name || '(sin nombre)'}</span><span style="color:#555">${b.type}</span>`;
-    li.onclick = () => { selectedIdx = i; updateUI(); draw(); };
+    li.className = i===selectedIdx ? 'sel' : '';
+    const tl = b.type==='karolay'?'★':b.type.charAt(0).toUpperCase();
+    li.innerHTML = `<span style="display:flex;align-items:center;gap:4px;"><span class="d" style="background:${b.color==='transparent'?'#555':b.color}"></span>${b.name||'(sin nombre)'}</span><span style="color:#555;font-size:10px;">${tl} ${b.type}</span>`;
+    li.onclick = () => { selectedIdx=i; updateUI(); draw(); };
     ul.appendChild(li);
   });
   document.getElementById('blockCount').textContent = blocks.length;
 }
+
 function updateSelInputs() {
   if (selectedIdx < 0) return;
   const b = blocks[selectedIdx];
   document.getElementById('selName').value = b.name;
+  document.getElementById('selType').value = b.type;
   document.getElementById('selX').value = Math.round(b.x);
   document.getElementById('selY').value = Math.round(b.y);
   document.getElementById('selW').value = b.w;
   document.getElementById('selH').value = b.h;
-  document.getElementById('selColor').value = b.color;
+  document.getElementById('selColor').value = b.color==='transparent'?'#1c1917':b.color;
   document.getElementById('selTextColor').value = b.textColor;
   document.getElementById('selRadius').value = b.radius;
+  document.getElementById('selRotation').value = b.rotation || 0;
+  document.getElementById('selFontSize').value = b.fontSize || 0;
 }
 
-// Generate base structure
+// ─── GENERATE BASE ───
 function generateBase() {
-  if (!confirm('Esto borrará los bloques actuales. ¿Continuar?')) return;
-  blocks = [];
-  const nV = parseInt(document.getElementById('genV').value) || 5;
-  const nH = parseInt(document.getElementById('genH').value) || 3;
-  const nE = parseInt(document.getElementById('genE').value) || 10;
-  const pw = parseInt(document.getElementById('genPW').value) || 30;
+  if (blocks.length > 0 && !confirm('Esto borrará los bloques actuales. ¿Continuar?')) return;
+  pushUndo(); blocks = [];
+  const nV = parseInt(document.getElementById('genV').value)||5;
+  const nH = parseInt(document.getElementById('genH').value)||3;
+  const nE = parseInt(document.getElementById('genE').value)||10;
+  const pw = parseInt(document.getElementById('genPW').value)||25;
   const margin = 40;
-  const usableW = MAP_W - margin * 2;
-  const usableH = MAP_H - margin * 2;
-  const spacingV = usableW / nV;
-  const spacingH = usableH / (nH + 1);
+  const usableW = MAP_W-margin*2, usableH = MAP_H-margin*2;
+  const spacingV = usableW/nV, spacingH = usableH/(nH+1);
 
-  // Horizontal corridors
-  for (let i = 1; i <= nH; i++) {
-    blocks.push({ name: '', x: margin, y: snap(margin + spacingH * i - pw / 2), w: usableW, h: pw, color: '#2a2a2a', textColor: '#444', radius: 0, type: 'pasillo_h' });
-  }
-  // Vertical corridors
-  for (let i = 0; i < nV; i++) {
-    blocks.push({ name: '', x: snap(margin + spacingV * i + spacingV / 2 - pw / 2), y: margin, w: pw, h: usableH, color: '#2a2a2a', textColor: '#444', radius: 0, type: 'pasillo_v' });
-  }
-  // Entrances
-  const entranceSpacing = MAP_W / (nE + 1);
-  for (let i = 1; i <= nE; i++) {
-    blocks.push({ name: 'E-' + i, x: snap(entranceSpacing * i - 25), y: MAP_H - margin - 10, w: 50, h: 30, color: '#3d3d3d', textColor: '#ddb153', radius: 6, type: 'entrada' });
-  }
-  // Karolay placeholder
-  blocks.push({ name: 'KAROLAY', x: snap(margin + spacingV * 0.5), y: snap(margin + spacingH - pw / 2 - 70), w: 100, h: 60, color: '#9b6d53', textColor: '#ffffff', radius: 8, type: 'karolay' });
+  for (let i=1;i<=nH;i++) blocks.push({name:`Pasadizo ${i}`,x:margin,y:snap(margin+spacingH*i-pw/2),w:usableW,h:pw,color:'#2a2723',textColor:'#555',radius:0,rotation:0,type:'pasillo_h'});
+  for (let i=0;i<nV;i++) blocks.push({name:'',x:snap(margin+spacingV*i+spacingV/2-pw/2),y:margin,w:pw,h:usableH,color:'#2a2723',textColor:'#555',radius:0,rotation:0,type:'pasillo_v'});
+  const es = MAP_W/(nE+1);
+  for (let i=1;i<=nE;i++) blocks.push({name:'E-'+i,x:snap(es*i-20),y:MAP_H-margin+3,w:40,h:20,color:'#4a4540',textColor:'#ddb153',radius:4,rotation:0,type:'entrada'});
+  blocks.push({name:'B-77\nKAROLAY',x:snap(margin+spacingV*0.5),y:snap(margin+spacingH-pw/2-55),w:60,h:45,color:'#9b6d53',textColor:'#ffffff',radius:5,rotation:0,type:'karolay'});
+  blocks.push({name:'',x:snap(margin+spacingV*0.5+20),y:snap(margin+spacingH-pw/2-72),w:18,h:18,color:'#e74c3c',textColor:'#ffffff',radius:9,rotation:0,type:'marker'});
 
-  selectedIdx = blocks.length - 1;
-  updateUI(); draw();
+  selectedIdx=blocks.length-1; updateUI(); draw();
 }
 
-// Export SVG
+// ─── SVG EXPORT ───
+function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function svgIconDef(type) {
+  switch(type) {
+    case 'escalera': return '<path d="M-6,-8 L6,-8 M-5,-3 L5,-3 M-4,2 L4,2 M-3,7 L3,7 M-6,-8 L-3,7 M6,-8 L3,7" stroke="currentColor" stroke-width="1.5" fill="none"/>';
+    case 'baño': return '<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="-6" cy="-6" r="2"/><path d="M-6,-3.5 L-6,2.5 M-9,-1 L-3,-1 M-6,2.5 L-8.5,7 M-6,2.5 L-3.5,7"/><circle cx="6" cy="-6" r="2"/><path d="M6,-3.5 L6,-1 M3,-1 L9,-1 M2.5,4 L6,-1 L9.5,4 M4.5,4 L4.5,7 M7.5,4 L7.5,7"/><line x1="0" y1="-8" x2="0" y2="8" stroke-dasharray="2,2"/></g>';
+    case 'entrada': return '<path d="M-5,5 L-5,-5 L5,-5 L5,5 M-1,0 L4,0 M2,-3 L4,0 L2,3" stroke="currentColor" stroke-width="1.3" fill="none"/>';
+    case 'marker': return '<circle cx="0" cy="0" r="8" fill="currentColor" opacity="0.9"/><circle cx="0" cy="0" r="3.5" fill="white"/>';
+    default: return '';
+  }
+}
+
 function exportSvg() {
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${MAP_H}" width="${MAP_W}" height="${MAP_H}">\n`;
-  svg += `  <rect width="${MAP_W}" height="${MAP_H}" fill="${MAP_BG}"/>\n`;
+  const showLegend = document.getElementById('showLegend').checked;
+  const title = document.getElementById('mapTitle').value;
+  const legendH = showLegend ? 55 : 0;
+  const totalH = MAP_H + legendH;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MAP_W} ${totalH}" width="${MAP_W}" height="${totalH}">\n`;
+  svg += `  <defs>\n    <linearGradient id="karolayGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b07d5a"/><stop offset="50%" stop-color="#9b6d53"/><stop offset="100%" stop-color="#7a5240"/></linearGradient>\n`;
+  svg += `    <style>@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0;transform:scale(1.8)}}.marker-pulse{animation:pulse 2s ease-in-out infinite;transform-origin:center}</style>\n  </defs>\n`;
+  svg += `  <rect width="${MAP_W}" height="${totalH}" fill="${MAP_BG}"/>\n`;
+
+  if (title) svg += `  <text x="${MAP_W/2}" y="22" fill="rgba(255,255,255,0.5)" font-size="13" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle">${escXml(title)}</text>\n`;
+
   blocks.forEach(b => {
-    const rx = b.radius > 0 ? ` rx="${b.radius}"` : '';
-    svg += `  <rect x="${Math.round(b.x)}" y="${Math.round(b.y)}" width="${b.w}" height="${b.h}"${rx} fill="${b.color}"/>\n`;
-    if (b.name) {
-      const fs = Math.min(14, b.h * 0.4, b.w / Math.max(b.name.length * 0.6, 1));
-      svg += `  <text x="${Math.round(b.x+b.w/2)}" y="${Math.round(b.y+b.h/2)}" fill="${b.textColor}" font-size="${Math.max(6, Math.round(fs))}" font-weight="bold" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">${b.name}</text>\n`;
+    const hasRot = b.rotation && b.rotation !== 0;
+    const bcx = Math.round(b.x+b.w/2), bcy = Math.round(b.y+b.h/2);
+    const rx = b.radius > 0 ? ` rx="${Math.min(b.radius,b.w/2,b.h/2)}"` : '';
+
+    if (hasRot) svg += `  <g transform="rotate(${b.rotation},${bcx},${bcy})">\n`;
+
+    // ─── MATRIZ SVG EXPORT ───
+    if (b.type === 'matriz') {
+      const cols=b.matCols||1, rows=b.matRows||1, gap=b.matGap||2;
+      const cellW=(b.w-(cols-1)*gap)/cols, cellH=(b.h-(rows-1)*gap)/rows;
+      let num = b.matStart||1;
+      const prefix = b.matPrefix||'';
+      for (let r=0;r<rows;r++) {
+        for (let c=0;c<cols;c++) {
+          const cx=Math.round(b.x+c*(cellW+gap)), cy=Math.round(b.y+r*(cellH+gap));
+          const cw=Math.round(cellW), ch=Math.round(cellH);
+          const crx = b.radius>0 ? ` rx="${Math.min(b.radius,cw/2,ch/2)}"` : '';
+          svg += `  <rect x="${cx}" y="${cy}" width="${cw}" height="${ch}"${crx} fill="${b.color}"/>\n`;
+          svg += `  <rect x="${cx}" y="${cy}" width="${cw}" height="${ch}"${crx} fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>\n`;
+          if (b.matShowNumbers !== false) {
+            const label = prefix+num;
+            const fs = Math.max(5, Math.round(Math.min(11, ch*0.4, cw/Math.max(label.length*0.55,1))));
+            svg += `  <text x="${cx+cw/2}" y="${cy+ch/2}" fill="${b.textColor}" font-size="${fs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(label)}</text>\n`;
+          }
+          num++;
+        }
+      }
     }
+    // ─── NORMAL SVG EXPORT ───
+    else {
+      if (b.color !== 'transparent') {
+        const fill = b.type==='karolay' ? 'url(#karolayGrad)' : b.color;
+        svg += `  <rect x="${Math.round(b.x)}" y="${Math.round(b.y)}" width="${b.w}" height="${b.h}"${rx} fill="${fill}"/>\n`;
+        if (b.type==='karolay') svg += `  <rect x="${Math.round(b.x)}" y="${Math.round(b.y)}" width="${b.w}" height="${b.h}"${rx} fill="none" stroke="#ddb153" stroke-width="2" opacity="0.8"/>\n`;
+        if (b.type==='tienda'||b.type==='area') svg += `  <rect x="${Math.round(b.x)}" y="${Math.round(b.y)}" width="${b.w}" height="${b.h}"${rx} fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>\n`;
+      }
+
+      if (b.type==='marker') {
+        svg += `  <circle cx="${bcx}" cy="${bcy}" r="${Math.min(b.w,b.h)*0.5}" fill="${b.color}" class="marker-pulse"/>\n`;
+        svg += `  <circle cx="${bcx}" cy="${bcy}" r="${Math.min(b.w,b.h)*0.35}" fill="${b.color}"/>\n`;
+        svg += `  <circle cx="${bcx}" cy="${bcy}" r="${Math.min(b.w,b.h)*0.15}" fill="white"/>\n`;
+      }
+
+      if (['escalera','baño','entrada'].includes(b.type)) {
+        const iy = b.name ? Math.round(b.y+b.h*0.35) : bcy;
+        svg += `  <g transform="translate(${bcx},${iy})" color="${b.textColor}">${svgIconDef(b.type)}</g>\n`;
+      }
+
+      // karolay: no star icon, just the highlighted box + text
+
+      if (b.name) {
+        const lines = b.name.split('\n');
+        const isVert = b.h>b.w*2 && b.type!=='marker';
+        const hasIcon = ['escalera','baño','entrada'].includes(b.type);
+        const customFs = b.fontSize || 0;
+
+        if (customFs > 0) {
+          if (lines.length > 1) {
+            const ty = Math.round(bcy - (lines.length-1)*customFs*0.6);
+            lines.forEach((line,li) => { svg += `  <text x="${bcx}" y="${ty+li*(customFs+2)}" fill="${b.textColor}" font-size="${customFs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(line)}</text>\n`; });
+          } else {
+            svg += `  <text x="${bcx}" y="${bcy}" fill="${b.textColor}" font-size="${customFs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(b.name)}</text>\n`;
+          }
+        } else if (isVert) {
+          const fs = Math.max(6, Math.round(Math.min(14, b.w*0.45, b.h/Math.max(b.name.length*0.6,1))));
+          svg += `  <text transform="translate(${bcx},${bcy}) rotate(-90)" fill="${b.textColor}" font-size="${fs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(b.name)}</text>\n`;
+        } else if (lines.length > 1) {
+          const mfs = Math.min(12, b.h*0.25, b.w/Math.max(Math.max(...lines.map(l=>l.length))*0.55,1));
+          const fs = Math.max(6, Math.round(mfs));
+          const ty = hasIcon ? Math.round(b.y+b.h*0.55) : Math.round(bcy-(lines.length-1)*fs*0.5);
+          lines.forEach((line,li) => { svg += `  <text x="${bcx}" y="${ty+li*(fs+2)}" fill="${b.textColor}" font-size="${fs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(line)}</text>\n`; });
+        } else {
+          const ty = hasIcon ? Math.round(b.y+b.h*0.72) : bcy;
+          const fs = Math.max(6, Math.round(Math.min(14, b.h*(hasIcon?0.3:0.4), b.w/Math.max(b.name.length*0.55,1))));
+          svg += `  <text x="${bcx}" y="${ty}" fill="${b.textColor}" font-size="${fs}" font-weight="bold" font-family="'Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">${escXml(b.name)}</text>\n`;
+        }
+      }
+    }
+    if (hasRot) svg += `  </g>\n`;
   });
+
+  if (showLegend) {
+    svg += `  <rect x="0" y="${MAP_H}" width="${MAP_W}" height="${legendH}" fill="${MAP_BG}"/>\n`;
+    svg += `  <line x1="20" y1="${MAP_H+2}" x2="${MAP_W-20}" y2="${MAP_H+2}" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>\n`;
+    const items = [];
+    const used = new Set(blocks.map(b=>b.type));
+    if (used.has('karolay')) items.push({color:'#9b6d53',label:'Club Karolay Jeans'});
+    if (used.has('tienda')) items.push({color:'#3a3a3a',label:'Tiendas / Stands'});
+    if (used.has('pasillo_v')||used.has('pasillo_h')) items.push({color:'#2a2723',label:'Pasadizos'});
+    if (used.has('entrada')) items.push({color:'#4a4540',label:'Entradas'});
+    if (used.has('escalera')) items.push({color:'#353030',label:'Escaleras'});
+    if (used.has('baño')) items.push({color:'#2d2828',label:'Baños'});
+    if (used.has('marker')) items.push({color:'#e74c3c',label:'Estás aquí'});
+    const iw = (MAP_W-40)/Math.min(items.length,4);
+    items.forEach((item,idx) => {
+      const col=idx%4, row=Math.floor(idx/4);
+      const lx=25+col*iw, ly=MAP_H+22+row*20;
+      if (item.color==='#e74c3c') { svg += `  <circle cx="${lx+5}" cy="${ly}" r="5" fill="${item.color}"/>\n  <circle cx="${lx+5}" cy="${ly}" r="2" fill="white"/>\n`; }
+      else svg += `  <rect x="${lx}" y="${ly-5}" width="12" height="10" rx="2" fill="${item.color}" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>\n`;
+      svg += `  <text x="${lx+18}" y="${ly}" fill="rgba(255,255,255,0.5)" font-size="10" font-family="'Segoe UI',sans-serif" dominant-baseline="central">${escXml(item.label)}</text>\n`;
+    });
+  }
   svg += `</svg>`;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
-  a.download = 'mapa-centro-comercial.svg';
-  a.click();
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'})); a.download='mapa-centro-comercial.svg'; a.click();
 }
 
-function saveJson() {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify({ MAP_W, MAP_H, MAP_BG, blocks }, null, 2)], { type: 'application/json' }));
-  a.download = 'mapa-proyecto.json';
-  a.click();
+// ─── PNG EXPORT ───
+function exportPng() {
+  const showLegend = document.getElementById('showLegend').checked;
+  const legendH = showLegend ? 55 : 0;
+  const totalH = MAP_H + legendH;
+  const ps = 2;
+  const oc = document.createElement('canvas'); oc.width=MAP_W*ps; oc.height=totalH*ps;
+  const ox = oc.getContext('2d'); ox.scale(ps,ps);
+  ox.fillStyle=MAP_BG; ox.fillRect(0,0,MAP_W,totalH);
+
+  const title = document.getElementById('mapTitle').value;
+  if (title) { ox.fillStyle='rgba(255,255,255,0.5)'; ox.font='bold 13px "Segoe UI",sans-serif'; ox.textAlign='center'; ox.textBaseline='top'; ox.fillText(title,MAP_W/2,8); }
+
+  blocks.forEach(b => {
+    ox.save();
+    if (b.rotation) { const cx=b.x+b.w/2,cy=b.y+b.h/2; ox.translate(cx,cy); ox.rotate(b.rotation*Math.PI/180); ox.translate(-cx,-cy); }
+
+    // Matriz PNG export
+    if (b.type==='matriz') {
+      const cols=b.matCols||1,rows=b.matRows||1,gap=b.matGap||2;
+      const cellW=(b.w-(cols-1)*gap)/cols, cellH=(b.h-(rows-1)*gap)/rows;
+      let num=b.matStart||1; const prefix=b.matPrefix||'';
+      for (let r=0;r<rows;r++) { for (let c=0;c<cols;c++) {
+        const cx=b.x+c*(cellW+gap), cy=b.y+r*(cellH+gap);
+        ox.fillStyle=b.color;
+        if (b.radius>0){roundRect(ox,cx,cy,cellW,cellH,Math.min(b.radius,cellW/2,cellH/2));ox.fill();}else ox.fillRect(cx,cy,cellW,cellH);
+        ox.strokeStyle='rgba(255,255,255,0.08)';ox.lineWidth=0.5;
+        if (b.radius>0){roundRect(ox,cx,cy,cellW,cellH,Math.min(b.radius,cellW/2,cellH/2));ox.stroke();}else ox.strokeRect(cx,cy,cellW,cellH);
+        if (b.matShowNumbers!==false) {
+          const label=prefix+num; ox.fillStyle=b.textColor;
+          const fs=Math.max(5,Math.min(11,cellH*0.4,cellW/Math.max(label.length*0.55,1)));
+          ox.font=`bold ${fs}px 'Segoe UI',sans-serif`;ox.textAlign='center';ox.textBaseline='middle';
+          ox.fillText(label,cx+cellW/2,cy+cellH/2,cellW-2);
+        } num++;
+      }}
+    } else {
+    if (b.color!=='transparent') {
+      ox.fillStyle=b.color;
+      if (b.type==='karolay') { const g=ox.createLinearGradient(b.x,b.y,b.x+b.w,b.y+b.h); g.addColorStop(0,'#b07d5a'); g.addColorStop(0.5,'#9b6d53'); g.addColorStop(1,'#7a5240'); ox.fillStyle=g; }
+      if (b.radius>0) { roundRect(ox,b.x,b.y,b.w,b.h,Math.min(b.radius,b.w/2,b.h/2)); ox.fill(); } else ox.fillRect(b.x,b.y,b.w,b.h);
+      if (b.type==='karolay') { ox.strokeStyle='#ddb153'; ox.lineWidth=2; if(b.radius>0){roundRect(ox,b.x,b.y,b.w,b.h,Math.min(b.radius,b.w/2,b.h/2));ox.stroke();}else ox.strokeRect(b.x,b.y,b.w,b.h); }
+    }
+    if (b.type==='marker') {
+      const cx=b.x+b.w/2,cy=b.y+b.h/2;
+      ox.fillStyle=b.color; ox.globalAlpha=0.4; ox.beginPath(); ox.arc(cx,cy,Math.min(b.w,b.h)*0.5,0,Math.PI*2); ox.fill();
+      ox.globalAlpha=1; ox.beginPath(); ox.arc(cx,cy,Math.min(b.w,b.h)*0.35,0,Math.PI*2); ox.fill();
+      ox.fillStyle='#fff'; ox.beginPath(); ox.arc(cx,cy,Math.min(b.w,b.h)*0.15,0,Math.PI*2); ox.fill();
+    }
+    const iconFn=ICONS[b.type]; if (iconFn&&b.type!=='marker') { ox.fillStyle=b.textColor; const iy=b.name?b.y+b.h*0.35:b.y+b.h/2; iconFn(ox,b.x+b.w/2,iy,Math.min(b.w,b.h)); }
+    if (b.name) {
+      ox.fillStyle=b.textColor; const lines=b.name.split('\n'); const isV=b.h>b.w*2&&b.type!=='marker'; const hasI=ICONS[b.type]&&b.type!=='marker';
+      if (isV) { ox.save(); ox.translate(b.x+b.w/2,b.y+b.h/2); ox.rotate(-Math.PI/2); const fs=Math.max(6,Math.min(14,b.w*0.45,b.h/Math.max(b.name.length*0.6,1))); ox.font=`bold ${fs}px 'Segoe UI',sans-serif`; ox.textAlign='center'; ox.textBaseline='middle'; ox.fillText(b.name,0,0,b.h-4); ox.restore(); }
+      else if (lines.length>1) { const fs=Math.max(6,Math.min(12,b.h*0.25,b.w/Math.max(Math.max(...lines.map(l=>l.length))*0.55,1))); ox.font=`bold ${fs}px 'Segoe UI',sans-serif`; ox.textAlign='center'; ox.textBaseline='middle'; const ty=hasI?b.y+b.h*0.55:b.y+b.h/2-(lines.length-1)*fs*0.5; lines.forEach((l,i)=>ox.fillText(l,b.x+b.w/2,ty+i*(fs+2),b.w-4)); }
+      else { const ty=hasI?b.y+b.h*0.7:b.y+b.h/2; const fs=Math.max(6,Math.min(14,b.h*(hasI?0.3:0.4),b.w/Math.max(b.name.length*0.55,1))); ox.font=`bold ${fs}px 'Segoe UI',sans-serif`; ox.textAlign='center'; ox.textBaseline='middle'; ox.fillText(b.name,b.x+b.w/2,ty,b.w-4); }
+    }
+    } // close else for non-matriz
+    ox.restore();
+  });
+
+  oc.toBlob(blob => { const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mapa-centro-comercial.png'; a.click(); },'image/png');
 }
+
+// ─── SAVE / LOAD ───
+function saveJson() {
+  const data = { MAP_W,MAP_H,MAP_BG,blocks, mapTitle:document.getElementById('mapTitle').value, showLegend:document.getElementById('showLegend').checked };
+  const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})); a.download='mapa-proyecto.json'; a.click();
+}
+
 function loadJson(e) {
   const file = e.target.files[0]; if (!file) return;
   const r = new FileReader();
   r.onload = ev => {
     try {
+      pushUndo();
       const d = JSON.parse(ev.target.result);
-      MAP_W = d.MAP_W || 800; MAP_H = d.MAP_H || 600; MAP_BG = d.MAP_BG || '#201e1e'; blocks = d.blocks || [];
-      document.getElementById('mapW').value = MAP_W; document.getElementById('mapH').value = MAP_H; document.getElementById('mapBg').value = MAP_BG;
-      selectedIdx = -1; updateUI(); draw();
-    } catch(err) { alert('Error: ' + err.message); }
+      MAP_W=d.MAP_W||900; MAP_H=d.MAP_H||1000; MAP_BG=d.MAP_BG||'#1c1917'; blocks=d.blocks||[];
+      blocks.forEach(b => { if (b.rotation===undefined) b.rotation=0; });
+      document.getElementById('mapW').value=MAP_W; document.getElementById('mapH').value=MAP_H; document.getElementById('mapBg').value=MAP_BG;
+      if (d.mapTitle) document.getElementById('mapTitle').value=d.mapTitle;
+      if (d.showLegend!==undefined) document.getElementById('showLegend').checked=d.showLegend;
+      selectedIdx=-1; updateUI(); draw();
+    } catch(err) { alert('Error: '+err.message); }
   };
-  r.readAsText(file);
+  r.readAsText(file); e.target.value='';
 }
 
-// Init
+function autoSave() {
+  const data = { MAP_W,MAP_H,MAP_BG,blocks, mapTitle:document.getElementById('mapTitle').value, showLegend:document.getElementById('showLegend').checked };
+  localStorage.setItem('ckj_mapa_editor', JSON.stringify(data));
+}
+function autoLoad() {
+  const saved = localStorage.getItem('ckj_mapa_editor');
+  if (!saved) { alert('No hay datos guardados.'); return; }
+  try {
+    pushUndo();
+    const d = JSON.parse(saved);
+    MAP_W=d.MAP_W||900; MAP_H=d.MAP_H||1000; MAP_BG=d.MAP_BG||'#1c1917'; blocks=d.blocks||[];
+    blocks.forEach(b => { if (b.rotation===undefined) b.rotation=0; });
+    document.getElementById('mapW').value=MAP_W; document.getElementById('mapH').value=MAP_H; document.getElementById('mapBg').value=MAP_BG;
+    if (d.mapTitle) document.getElementById('mapTitle').value=d.mapTitle;
+    if (d.showLegend!==undefined) document.getElementById('showLegend').checked=d.showLegend;
+    selectedIdx=-1; updateUI(); draw();
+  } catch(err) { alert('Error: '+err.message); }
+}
+
+setInterval(autoSave, 30000);
+
+// ─── INIT ───
 resize();
-generateBase();
+const savedData = localStorage.getItem('ckj_mapa_editor');
+if (savedData) {
+  try {
+    const d = JSON.parse(savedData);
+    MAP_W=d.MAP_W||900; MAP_H=d.MAP_H||1000; MAP_BG=d.MAP_BG||'#1c1917'; blocks=d.blocks||[];
+    blocks.forEach(b => { if (b.rotation===undefined) b.rotation=0; });
+    document.getElementById('mapW').value=MAP_W; document.getElementById('mapH').value=MAP_H; document.getElementById('mapBg').value=MAP_BG;
+    if (d.mapTitle) document.getElementById('mapTitle').value=d.mapTitle;
+    if (d.showLegend!==undefined) document.getElementById('showLegend').checked=d.showLegend;
+    updateUI(); draw();
+  } catch(e) { generateBase(); }
+} else { generateBase(); }
 </script>
 </body>
 </html>
