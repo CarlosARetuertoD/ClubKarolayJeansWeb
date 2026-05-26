@@ -1,4 +1,4 @@
-export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP || '51940403984'
+export const WHATSAPP_NUMBER = '51940403984'
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`
 export const WHATSAPP_DEFAULT_MSG = '?text=Hola%20Club%20Karolay%20Jeans%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20%F0%9F%91%96'
 
