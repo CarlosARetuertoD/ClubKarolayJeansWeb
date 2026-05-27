@@ -15,9 +15,9 @@ export const BUSINESS = {
   email: 'ventas@clubkarolayjeans.com',
   whatsapp: WHATSAPP_NUMBER,
   social: {
-    instagram: '#',
-    tiktok: '#',
-    facebook: '#',
+    instagram: 'https://www.instagram.com/clubkarolayjeans/',
+    tiktok: 'https://www.tiktok.com/@clubkarolayjeans',
+    facebook: 'https://www.facebook.com/profile.php?id=6159020262977',
   },
   developer: 'REDEL Smart Software Solutions',
 } as const
