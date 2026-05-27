@@ -17,7 +17,7 @@ export const BUSINESS = {
   social: {
     instagram: 'https://www.instagram.com/clubkarolayjeans/',
     tiktok: 'https://www.tiktok.com/@clubkarolayjeans',
-    facebook: 'https://www.facebook.com/profile.php?id=6159020262977',
+    facebook: 'https://www.facebook.com/profile.php?id=61590202629771',
   },
   developer: 'REDEL Smart Software Solutions',
 } as const
