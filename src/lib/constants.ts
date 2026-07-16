@@ -1,4 +1,4 @@
-export const WHATSAPP_NUMBER = '51940403984'
+export const WHATSAPP_NUMBER = '51993084496'
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`
 export const WHATSAPP_DEFAULT_MSG = '?text=Hola%20Club%20Karolay%20Jeans%2C%20quiero%20m%C3%A1s%20informaci%C3%B3n%20%F0%9F%91%96'
 
@@ -11,7 +11,7 @@ export const BUSINESS = {
   shortDescription: 'Tienda de jeans y moda denim para dama y varón en Arequipa.',
   address: 'Av. Siglo XX 209-213, C.C. Don Ramón, INT. B-77',
   city: 'Cercado de Arequipa 04001, Perú',
-  phone: '+51 940 403 984',
+  phone: '+51 993 084 496',
   email: 'ventas@clubkarolayjeans.com',
   whatsapp: WHATSAPP_NUMBER,
   social: {

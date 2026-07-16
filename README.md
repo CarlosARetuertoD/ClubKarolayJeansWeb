@@ -135,14 +135,14 @@ Para cambiar una imagen, solo reemplaza el archivo `.webp` con el mismo nombre.
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_KEY=
-NEXT_PUBLIC_WHATSAPP=51940403984
+NEXT_PUBLIC_WHATSAPP=51993084496
 NEXT_PUBLIC_SITE_URL=https://www.clubkarolayjeans.com
 ```
 
 ## Datos del negocio
 
 Centralizados en `src/lib/constants.ts`:
-- Telefono WhatsApp: 940 403 984
+- Telefono WhatsApp: 993 084 496
 - Direccion: Av. Siglo XX 209-213, C.C. Don Ramon, INT. B-77
 - Horario: Lun-Sab 9am-8pm, Dom 9am-7pm
 - Marcas: Pionier, Tayssir, Wrangler, Lee, Lois, Brooklyn, Element, Kansas, Norton, American Colt, Filippo Alpi

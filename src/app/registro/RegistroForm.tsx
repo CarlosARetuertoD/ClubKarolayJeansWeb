@@ -181,7 +181,7 @@ export default function RegistroForm() {
                   required
                   value={form.celular}
                   onChange={(e) => setForm({ ...form, celular: e.target.value })}
-                  placeholder="940 403 984"
+                  placeholder="993 084 496"
                   className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors placeholder:text-white/30"
                 />
               </div>

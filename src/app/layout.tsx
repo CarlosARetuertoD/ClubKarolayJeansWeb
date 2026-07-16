@@ -107,7 +107,7 @@ export default function RootLayout({
               alternateName: 'Karolay Jeans',
               description: 'Tienda especializada en jeans y moda denim para dama y varón en Arequipa. Marcas como Pionier, Tayssir, Wrangler, Lee, Lois, Brooklyn, Element y más.',
               url: 'https://www.clubkarolayjeans.com',
-              telephone: '+51940403984',
+              telephone: '+51993084496',
               email: 'ventas@clubkarolayjeans.com',
               logo: 'https://www.clubkarolayjeans.com/images/logo/logoKarolay.png',
               image: [
