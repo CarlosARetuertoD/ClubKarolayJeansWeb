@@ -6,10 +6,26 @@ Sitio web oficial de **Club Karolay Jeans**, tienda especializada en jeans y mod
 
 - **Framework:** Next.js 14 (App Router)
 - **Estilos:** Tailwind CSS
-- **Base de datos / Auth:** Supabase
+- **Base de datos / Auth:** KarolayJeansERP (Django en Railway) vía `/api/web/*` con header `X-Web-Key` — sin base de datos propia
 - **QR:** qrcode (generacion client-side)
 - **Deploy:** Vercel
 - **Dominio:** clubkarolayjeans.com
+
+> **Migracion (2026-07):** Supabase quedo fuera del ecosistema. Todos los datos del club
+> (clientes, codigos, canjes, reclamaciones, tracking) viven en RedelBD (tablas `marketing_web*`)
+> y se leen/escriben a traves de los endpoints `/api/web/` de KarolayJeansERP.
+
+## Arquitectura
+
+```
+Navegador ──► API routes de Next (src/app/api/*) ──► KarolayJeansERP /api/web/* (Railway)
+              [BFF: unica capa con credenciales]      [X-Web-Key → tablas marketing_web* en RedelBD]
+```
+
+- El navegador **nunca** habla con Railway directo: las API routes de Next actúan como BFF.
+- `src/lib/erp.ts` es el único cliente HTTP hacia el ERP (`erpGet`/`erpSend` + `ErpError`).
+- La lógica de negocio (validaciones, canjes, bono de bienvenida) vive en Django, no aquí.
+- Sesión del club en `localStorage` (`src/lib/session.ts`, clave `ckj_session`) — el `id` es la fila de clientes web en RedelBD.
 
 ## Estructura del proyecto
 
@@ -32,11 +48,15 @@ src/
 │   ├── promo/[slug]/            # Detalle de promo individual
 │   ├── promociones/             # Promos exclusivas (requiere login)
 │   ├── registro/                # Registro al club
-│   └── api/
-│       ├── registro/            # Crear cuenta + bono de bienvenida
+│   └── api/                     # Proxies delgados hacia el ERP
+│       ├── login/               # Login + anti fuerza bruta (lockout progresivo)
+│       ├── registro/            # Crear cuenta (el ERP genera el bono de bienvenida)
+│       ├── cuenta/              # GET/PATCH datos del cliente
 │       ├── canje/               # Generar token QR (POST) + validar/canjear (GET)
 │       ├── mis-codigos/         # Listar codigos del usuario (globales + personales)
-│       └── track/               # Tracking de eventos
+│       ├── reclamaciones/       # Enviar reclamo al libro de reclamaciones
+│       ├── track/               # Tracking de eventos
+│       └── health/              # Health check (estandar Redel Monitor, X-Monitor-Token)
 ├── components/
 │   ├── Header.tsx               # Navbar con auth condicional
 │   ├── Footer.tsx               # Footer
@@ -47,7 +67,9 @@ src/
 │   └── useScrollReveal.ts       # Animacion de secciones al scroll
 └── lib/
     ├── constants.ts             # Datos del negocio, marcas, categorias, promos
-    ├── supabase.ts              # Cliente Supabase + tipos
+    ├── erp.ts                   # Cliente HTTP server-side hacia KarolayJeansERP
+    ├── session.ts               # Sesion del club en localStorage
+    ├── loginRateLimit.ts        # Anti fuerza bruta del login (en memoria)
     └── tracking.ts              # Funciones de tracking
 ```
 
@@ -83,8 +105,8 @@ src/
 ## Sistema de codigos promo
 
 ### Tipos de codigos
-- **Personal** (`cliente_id` = UUID): asignado a un usuario especifico. Se marca `canjeado=true` al usar.
-- **Global** (`cliente_id` = null): disponible para todos los miembros. Cada usuario puede canjearlo una vez (registrado en `web_codigo_canjes`).
+- **Personal** (con cliente asignado): asignado a un usuario especifico. Se marca canjeado al usar.
+- **Global** (sin cliente): disponible para todos los miembros. Cada usuario puede canjearlo una vez.
 - **Bono de bienvenida**: se crea automaticamente al registrarse. Personal, 10% OFF, valido 30 dias.
 
 ### Flujo de canje
@@ -95,12 +117,21 @@ src/
 5. Codigo se marca como canjeado automaticamente → pantalla de exito
 6. Si el QR expiro o ya fue usado, muestra error
 
-### Gestion desde RedelERP
-Los codigos se crean y gestionan desde **RedelERP > Marketing > Codigos Promo**:
-- CRUD completo con sync automatico a Supabase al crear/editar/eliminar
-- El boton "Sincronizar" hace push de codigos locales + pull de datos web
-- Filtros: todos, activos, canjeados
-- Muestra nombre del cliente asignado
+### Gestion desde KarolayJeansERP
+Los codigos se crean y gestionan desde **KarolayJeansERP > Marketing > Codigos Promo**,
+directo sobre RedelBD (sin sync intermedio). Filtros: todos, activos, canjeados.
+Muestra nombre del cliente asignado.
+
+## Autenticacion
+
+- **Login**: email + contraseña contra KarolayJeansERP (`/api/web/login/`, hash en el ERP).
+- **Anti fuerza bruta** (`src/lib/loginRateLimit.ts`): 3 intentos por usuario / 10 por IP →
+  bloqueo de 15 min que se duplica en cada reincidencia (tope 24 h). Estado en memoria del
+  proceso — valido para una instancia; si se escala, mover a BD/Redis.
+- **Sesion**: los datos del cliente se guardan en `localStorage` (`ckj_session`). Cerrar
+  sesion limpia tambien las claves legadas (`ckj_cliente_id`, `ckj_user_name`, `ckj_bio_cliente`).
+- **Google OAuth** quedo fuera con la salida de Supabase — re-agregarlo requiere credenciales
+  OAuth propias.
 
 ## SEO
 
@@ -132,12 +163,14 @@ Para cambiar una imagen, solo reemplaza el archivo `.webp` con el mismo nombre.
 ## Variables de entorno
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_KEY=
-NEXT_PUBLIC_WHATSAPP=51993084496
+REDELERP_URL=        # URL de KarolayJeansERP en Railway (server-only)
+WEB_API_KEY=         # X-Web-Key, debe coincidir con el ERP (server-only)
+MONITOR_TOKEN=       # detalle de /api/health (server-only)
 NEXT_PUBLIC_SITE_URL=https://www.clubkarolayjeans.com
 ```
+
+> El numero de WhatsApp **no** es env var: esta hardcodeado a proposito en
+> `src/lib/constants.ts` (una env var de Vercel lo piso una vez).
 
 ## Datos del negocio
 
@@ -149,60 +182,32 @@ Centralizados en `src/lib/constants.ts`:
 
 ## Funcionalidades
 
-- **Club VIP**: Registro con email/password o Google. Miembros acceden a promos exclusivas.
+- **Club VIP**: Registro con email/password. Miembros acceden a promos exclusivas.
 - **Tarjeta digital** (`/bio`): Standalone tipo Linktree. Logo clickeable a inicio. Saludo con nombre completo, "Miembro desde..." alineado a la derecha. Botones: catalogo, redes (modal con Instagram/TikTok/Facebook), promos+codigos (solo logueado), WhatsApp, ubicacion. Cache en localStorage para carga instantanea sin parpadeo. Cerrar sesion limpia todo el cache.
 - **Promociones** (`/promociones`): Pagina dinamica. Si logueado: muestra codigos disponibles con boton "Canjear en tienda" (genera QR). Si no: muestra "Crea tu cuenta gratis" con beneficios.
 - **Landing Club VIP**: Seccion dinamica. Si logueado: "Ver mis descuentos" → /mis-codigos. Si no: "Unirme al Club gratis" → /registro.
-- **Codigos promo**: Sistema completo de codigos de descuento con QR temporal (5 min). Personales y globales. Gestion desde RedelERP.
+- **Codigos promo**: Sistema completo de codigos de descuento con QR temporal (5 min). Personales y globales. Gestion desde KarolayJeansERP.
 - **Bono de bienvenida**: 10% OFF automatico al registrarse, valido 30 dias.
-- **Mi cuenta**: Editar nombre, celular, DNI, fecha nacimiento, genero. Cambio de contraseña (solo email auth). Enlaces rapidos a tarjeta, codigos y promos.
+- **Mi cuenta**: Editar nombre, celular, DNI, fecha nacimiento, genero. Cambio de contraseña. Enlaces rapidos a tarjeta, codigos y promos.
 - **Cache de auth**: Nombre de usuario y datos de bio en localStorage. Carga instantanea sin flash al recargar. Se limpia al cerrar sesion.
-- **Tracking**: Registro de clics, visitas, scans QR en Supabase. Parametro `?ref=` para tracking de QR fisicos.
+- **Tracking**: Registro de clics, visitas y scans QR en RedelBD (via ERP). Parametro `?ref=` para tracking de QR fisicos.
 - **Libro de reclamaciones**: Formulario de 5 pasos conforme a Ley N. 29571. Acceso solo por QR en tienda.
+- **Health check** (`/api/health`): estandar Redel Monitor — sin token responde `{status}`; con `X-Monitor-Token` devuelve version desplegada y timestamp.
 - **SEO**: JSON-LD (ClothingStore + WebSite), Open Graph por pagina, canonical, sitemap dinamico, robots.txt.
 
-## Supabase
+## Integracion con KarolayJeansERP
 
-### Tablas
-- `web_clientes` - Datos de miembros (nombre, celular, dni, fecha_nacimiento, genero, email, auth)
-- `web_codigos_promo` - Codigos de descuento (personales y globales)
-- `web_codigo_canjes` - Registro de canjes por usuario (para codigos globales)
-- `web_canje_tokens` - Tokens temporales QR (5 min de vida)
-- `web_reclamaciones` - Libro de reclamaciones
-- `web_visitas` - Visitas a paginas
-- `web_clicks` - Clics y eventos
+Este proyecto consume **KarolayJeansERP** (sistema de inventario central, Django en Railway):
 
-### RLS Policies
-- `web_clientes`: SELECT own profile, UPDATE own profile
-- `web_codigos_promo`: SELECT own codes (personal + global via API)
-- `web_canje_tokens`: sin policy publica (solo service key via API)
-- `web_codigo_canjes`: sin policy publica (solo service key via API)
-
-### Config importante
-- **Authentication > URL Configuration > Site URL**: `https://www.clubkarolayjeans.com`
-- **Authentication > Email Auth**: Desactivar "Confirm email" (recomendado)
-- **Authentication > Email Templates**: Personalizar con branding de Club Karolay Jeans
-- **Authentication > Providers > Google**: Configurar con OAuth 2.0 de Google Cloud Console
-
-## Integracion con RedelERP
-
-Este proyecto se sincroniza con **RedelERP** (sistema de inventario central):
-
-```
-RedelERP (PostgreSQL local) ──push codigos──► Supabase
-                             ◄──pull marketing──
-Web (Next.js) ──────────────────────────────► Supabase
-```
-
-- RedelERP crea/edita codigos promo → sync automatico a Supabase (si hay internet)
-- Boton "Sincronizar" en Marketing hace push completo + pull de visitas/clicks/clientes
-- Dashboard de Marketing en RedelERP muestra metricas de codigos (total, activos, canjeados)
+- Endpoints `/api/web/*` autenticados con header `X-Web-Key` (env `WEB_API_KEY` en ambos lados).
+- Tablas del club (`marketing_web*`) en RedelBD: clientes, codigos promo, canjes, tokens QR, reclamaciones, visitas, clicks.
+- El modulo Marketing del ERP muestra metricas de la web (visitas, clicks, clientes, codigos) leyendo los mismos modelos — sin sync intermedio.
 
 ## Desarrollo
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run dev        # http://localhost:3002
 npm run build      # Build de produccion
 ```
 
