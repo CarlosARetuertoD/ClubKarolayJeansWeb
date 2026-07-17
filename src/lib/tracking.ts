@@ -1,5 +1,3 @@
-import { supabase } from './supabase'
-
 function getDevice(): 'mobile' | 'tablet' | 'desktop' {
   if (typeof window === 'undefined') return 'desktop'
   const w = window.innerWidth
@@ -28,21 +26,30 @@ function getUTMParams(): Record<string, string | null> {
   }
 }
 
-export async function trackPageView(pagina: string) {
+async function send(type: 'pageview' | 'click', data: Record<string, unknown>) {
   try {
-    const utm = getUTMParams()
-    await supabase.from('web_visitas').insert({
-      pagina,
-      referrer: typeof document !== 'undefined' ? document.referrer || null : null,
-      utm_source: utm.utm_source,
-      utm_medium: utm.utm_medium,
-      utm_campaign: utm.utm_campaign,
-      dispositivo: getDevice(),
-      navegador: getBrowser(),
+    await fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, data }),
+      keepalive: true,
     })
   } catch (e) {
-    console.error('Error tracking page view:', e)
+    console.error('Error tracking:', e)
   }
+}
+
+export async function trackPageView(pagina: string) {
+  const utm = getUTMParams()
+  await send('pageview', {
+    pagina,
+    referrer: typeof document !== 'undefined' ? document.referrer || null : null,
+    utm_source: utm.utm_source,
+    utm_medium: utm.utm_medium,
+    utm_campaign: utm.utm_campaign,
+    dispositivo: getDevice(),
+    navegador: getBrowser(),
+  })
 }
 
 export async function trackClick(
@@ -51,19 +58,15 @@ export async function trackClick(
   pagina: string,
   metadata?: Record<string, unknown>
 ) {
-  try {
-    const clienteId = typeof localStorage !== 'undefined'
-      ? localStorage.getItem('ckj_cliente_id')
-      : null
+  const clienteId = typeof localStorage !== 'undefined'
+    ? localStorage.getItem('ckj_cliente_id')
+    : null
 
-    await supabase.from('web_clicks').insert({
-      tipo,
-      etiqueta,
-      pagina,
-      cliente_id: clienteId,
-      metadata: metadata || null,
-    })
-  } catch (e) {
-    console.error('Error tracking click:', e)
-  }
+  await send('click', {
+    tipo,
+    etiqueta,
+    pagina,
+    cliente_id: clienteId,
+    metadata: metadata || null,
+  })
 }

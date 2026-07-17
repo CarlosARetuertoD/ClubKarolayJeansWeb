@@ -6,7 +6,11 @@
       "Bash(mkdir:*)",
       "Bash(npx next:*)",
       "Bash(python manage.py migrate marketing)",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(git apply *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix: cambiar telefono del club a 993 084 496 \\(el 940 403 984 paso a Redel\\) *)",
+      "Bash(git push *)"
     ]
   }
 }

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import QRCode from 'qrcode'
 import { BUSINESS, PROMOS_DATA, WHATSAPP_URL, SITE_URL } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
-import { supabase } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
 
 type CodigoPromo = {
   id: string
@@ -31,48 +31,21 @@ export default function PromocionesContent() {
   const promo = PROMOS_DATA[0]
 
   useEffect(() => {
-    let found = false
-
-    async function load(userId: string) {
-      if (found) return
-      found = true
-      setLoggedIn(true)
-
-      const { data: cliente } = await supabase
-        .from('web_clientes')
-        .select('id')
-        .eq('auth_uid', userId)
-        .maybeSingle()
-
-      if (cliente?.id) {
-        setClienteId(cliente.id)
-        const res = await fetch(`/api/mis-codigos?cliente_id=${cliente.id}`)
-        const result = await res.json()
-        if (result.codigos) setCodigos(result.codigos)
-      }
+    const session = getSession()
+    if (!session) {
       setLoading(false)
+      return
     }
+    setLoggedIn(true)
+    setClienteId(session.id)
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        load(session.user.id)
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        load(session.user.id)
-      }
-    })
-
-    const timeout = setTimeout(() => {
-      if (!found) setLoading(false)
-    }, 5000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
-    }
+    fetch(`/api/mis-codigos?cliente_id=${encodeURIComponent(session.id)}`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.codigos) setCodigos(result.codigos)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
   // QR countdown

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { getSession, setSession, clearSession, type ClubSession } from '@/lib/session'
 import { BUSINESS } from '@/lib/constants'
 
 type ClienteData = {
@@ -32,58 +32,45 @@ export default function CuentaContent() {
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
   useEffect(() => {
-    let found = false
+    const session = getSession()
+    if (!session) {
+      router.replace('/login?redirect=/cuenta')
+      return
+    }
 
-    async function loadProfile(userId: string, email?: string) {
-      if (found) return
-      found = true
-
-      const { data } = await supabase
-        .from('web_clientes')
-        .select('nombre, celular, dni, fecha_nacimiento, genero, email, auth_provider, created_at')
-        .eq('auth_uid', userId)
-        .maybeSingle()
-
-      if (data) {
-        setCliente(data)
-        setForm({
-          nombre: data.nombre || '',
-          celular: data.celular || '',
-          dni: data.dni || '',
-          fecha_nacimiento: data.fecha_nacimiento || '',
-          genero: (data.genero as '' | 'dama' | 'varon') || '',
+    // Datos frescos desde RedelERP; fallback a la sesión local si falla
+    fetch(`/api/cuenta?cliente_id=${encodeURIComponent(session.id)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const c = (data.cliente || session) as ClubSession
+        setCliente({
+          nombre: c.nombre || '',
+          celular: c.celular || '',
+          dni: c.dni,
+          fecha_nacimiento: c.fecha_nacimiento,
+          genero: c.genero,
+          email: c.email || '',
+          auth_provider: c.auth_provider || 'email',
+          created_at: c.created_at || '',
         })
-      } else if (email) {
-        // Fallback si RLS bloquea
-        setCliente({ nombre: '', celular: '', dni: null, fecha_nacimiento: null, genero: null, email, auth_provider: 'email', created_at: '' })
-      }
-      setLoading(false)
-    }
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadProfile(session.user.id, session.user.email)
-      } else {
-        router.replace('/login?redirect=/cuenta')
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        loadProfile(session.user.id, session.user.email)
-      } else if (event === 'SIGNED_OUT') {
-        router.replace('/login?redirect=/cuenta')
-      }
-    })
-
-    const timeout = setTimeout(() => {
-      if (!found) router.replace('/login?redirect=/cuenta')
-    }, 3000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
-    }
+        setForm({
+          nombre: c.nombre || '',
+          celular: c.celular || '',
+          dni: c.dni || '',
+          fecha_nacimiento: c.fecha_nacimiento || '',
+          genero: (c.genero as '' | 'dama' | 'varon') || '',
+        })
+        setLoading(false)
+      })
+      .catch(() => {
+        setCliente({
+          nombre: session.nombre, celular: session.celular, dni: session.dni,
+          fecha_nacimiento: session.fecha_nacimiento, genero: session.genero,
+          email: session.email || '', auth_provider: session.auth_provider,
+          created_at: session.created_at || '',
+        })
+        setLoading(false)
+      })
   }, [router])
 
   const handleSave = async () => {
@@ -91,26 +78,30 @@ export default function CuentaContent() {
     setError('')
     setSaved(false)
 
-    const { data: { session } } = await supabase.auth.getSession()
+    const session = getSession()
     if (!session) return
 
-    const { error: dbError } = await supabase
-      .from('web_clientes')
-      .update({
-        nombre: form.nombre,
-        celular: form.celular,
-        dni: form.dni || null,
-        fecha_nacimiento: form.fecha_nacimiento || null,
-        genero: form.genero || null,
+    try {
+      const res = await fetch('/api/cuenta', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cliente_id: session.id,
+          nombre: form.nombre,
+          celular: form.celular,
+          dni: form.dni || null,
+          fecha_nacimiento: form.fecha_nacimiento || null,
+          genero: form.genero || null,
+        }),
       })
-      .eq('auth_uid', session.user.id)
-
-    if (dbError) {
-      setError('Error al guardar los cambios.')
-    } else {
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      if (data.cliente) setSession(data.cliente as ClubSession)
       setSaved(true)
       if (cliente) setCliente({ ...cliente, nombre: form.nombre, celular: form.celular })
       setTimeout(() => setSaved(false), 3000)
+    } catch {
+      setError('Error al guardar los cambios.')
     }
     setSaving(false)
   }
@@ -130,49 +121,40 @@ export default function CuentaContent() {
 
     setChangingPassword(true)
 
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user?.email) {
+    const session = getSession()
+    if (!session) {
       setError('No se pudo verificar tu sesión.')
       setChangingPassword(false)
       return
     }
 
-    // Verify current password without replacing session
-    const { error: verifyError } = await supabase.auth.signInWithPassword({
-      email: session.user.email,
-      password: passwordForm.current,
-    })
-
-    if (verifyError) {
-      setError('La contraseña actual es incorrecta.')
-      setChangingPassword(false)
-      return
-    }
-
-    // Update password (session is already refreshed by signIn above)
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: passwordForm.nueva,
-    })
-
-    if (updateError) {
-      setError('Error al cambiar la contraseña. Intenta de nuevo.')
-    } else {
-      // Re-authenticate with new password to ensure session is clean
-      await supabase.auth.signInWithPassword({
-        email: session.user.email,
-        password: passwordForm.nueva,
+    try {
+      const res = await fetch('/api/cuenta', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cliente_id: session.id,
+          password_actual: passwordForm.current,
+          password_nueva: passwordForm.nueva,
+        }),
       })
-      setSuccessMsg('Contraseña actualizada correctamente.')
-      setPasswordForm({ current: '', nueva: '', confirmar: '' })
-      setShowPasswordForm(false)
-      setTimeout(() => setSuccessMsg(''), 4000)
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Error al cambiar la contraseña. Intenta de nuevo.')
+      } else {
+        setSuccessMsg('Contraseña actualizada correctamente.')
+        setPasswordForm({ current: '', nueva: '', confirmar: '' })
+        setShowPasswordForm(false)
+        setTimeout(() => setSuccessMsg(''), 4000)
+      }
+    } catch {
+      setError('Error al cambiar la contraseña. Intenta de nuevo.')
     }
     setChangingPassword(false)
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    localStorage.removeItem('ckj_cliente_id')
+  const handleLogout = () => {
+    clearSession()
     router.push('/')
   }
 

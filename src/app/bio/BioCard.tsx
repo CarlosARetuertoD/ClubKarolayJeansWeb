@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { WHATSAPP_URL, BUSINESS } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
-import { supabase } from '@/lib/supabase'
+import { getSession, clearSession } from '@/lib/session'
 
 type ClienteData = { nombre: string; email: string; created_at: string } | null
 
@@ -35,75 +35,18 @@ export default function BioCard() {
     }
   }, [searchParams])
 
-  // Check if user is logged in
+  // Check if user is logged in (sesión local — RedelERP)
   useEffect(() => {
-    let found = false
-
-    async function loadCliente(session: { user: { id: string; email?: string; user_metadata?: Record<string, unknown>; created_at?: string } }) {
-      if (found) return
-      found = true
-      const user = session.user
-      localStorage.setItem('ckj_cliente_id', user.id)
-
-      // Try to get full profile from web_clientes
-      const { data } = await supabase
-        .from('web_clientes')
-        .select('nombre, email, created_at')
-        .eq('auth_uid', user.id)
-        .maybeSingle()
-
-      if (data) {
-        setCliente(data)
-        localStorage.setItem('ckj_bio_cliente', JSON.stringify(data))
-        localStorage.setItem('ckj_user_name', data.nombre)
-      } else {
-        // RLS blocks the query — fall back to auth session data
-        const nombre = (user.user_metadata?.nombre as string)
-          || (user.user_metadata?.full_name as string)
-          || (user.user_metadata?.name as string)
-          || user.email?.split('@')[0]
-          || 'Miembro'
-        const fallback = { nombre, email: user.email || '', created_at: user.created_at || '' }
-        setCliente(fallback)
-        localStorage.setItem('ckj_bio_cliente', JSON.stringify(fallback))
-        localStorage.setItem('ckj_user_name', nombre)
-      }
-      setLoading(false)
+    const session = getSession()
+    if (session) {
+      const data = { nombre: session.nombre, email: session.email || '', created_at: session.created_at || '' }
+      setCliente(data)
+      localStorage.setItem('ckj_bio_cliente', JSON.stringify(data))
+    } else {
+      localStorage.removeItem('ckj_bio_cliente')
+      setCliente(null)
     }
-
-    // Try existing session first
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadCliente(session)
-      } else if (!found) {
-        // No session — clear cache
-        localStorage.removeItem('ckj_bio_cliente')
-        setCliente(null)
-        setLoading(false)
-      }
-    })
-
-    // Listen for session restore
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        loadCliente(session)
-      } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('ckj_bio_cliente')
-        localStorage.removeItem('ckj_user_name')
-        setCliente(null)
-        setLoading(false)
-      }
-    })
-
-    // Safety timeout
-    const timeout = setTimeout(() => {
-      if (!found) setLoading(false)
-    }, 5000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
-    }
+    setLoading(false)
   }, [])
 
   const [showRedes, setShowRedes] = useState(false)
@@ -369,11 +312,8 @@ export default function BioCard() {
           <p className="opacity-80">Guarda este enlace o QR para tus próximas visitas.</p>
           {!loading && cliente && (
             <button
-              onClick={async () => {
-                await supabase.auth.signOut()
-                localStorage.removeItem('ckj_cliente_id')
-                localStorage.removeItem('ckj_bio_cliente')
-                localStorage.removeItem('ckj_user_name')
+              onClick={() => {
+                clearSession()
                 setCliente(null)
               }}
               className="mt-3 text-white/25 text-[0.7rem] hover:text-white/50 transition-colors"

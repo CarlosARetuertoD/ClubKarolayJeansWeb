@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { BUSINESS } from '@/lib/constants'
-import { supabase } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
 
 const NAV_LINKS = [
   { href: '/#inicio', label: 'Inicio' },
@@ -21,76 +21,23 @@ export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [userName, setUserName] = useState('')
 
-  // Instant load from cache on mount (client only)
+  // Sesión local (RedelERP) — sin llamadas de red
   useEffect(() => {
-    const cached = localStorage.getItem('ckj_user_name')
-    if (cached) {
+    const session = getSession()
+    if (session) {
       setLoggedIn(true)
-      setUserName(cached)
-      setAuthChecked(true)
+      setUserName(session.nombre || '')
+    } else {
+      setLoggedIn(false)
+      setUserName('')
     }
+    setAuthChecked(true)
   }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    let resolved = false
-
-    async function loadName(userId: string, userMeta?: Record<string, unknown>) {
-      if (resolved) return
-      resolved = true
-      setLoggedIn(true)
-      setAuthChecked(true)
-
-      const { data } = await supabase
-        .from('web_clientes')
-        .select('nombre')
-        .eq('auth_uid', userId)
-        .maybeSingle()
-
-      let name = ''
-      if (data?.nombre) {
-        name = data.nombre
-      } else {
-        name = (userMeta?.nombre as string)
-          || (userMeta?.full_name as string)
-          || ''
-      }
-
-      if (name) {
-        setUserName(name)
-        localStorage.setItem('ckj_user_name', name)
-      }
-    }
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadName(session.user.id, session.user.user_metadata)
-      } else if (!resolved) {
-        // No session — clear cache
-        localStorage.removeItem('ckj_user_name')
-        setLoggedIn(false)
-        setUserName('')
-        setAuthChecked(true)
-      }
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        loadName(session.user.id, session.user.user_metadata)
-      } else if (event === 'SIGNED_OUT') {
-        localStorage.removeItem('ckj_user_name')
-        setLoggedIn(false)
-        setUserName('')
-        setAuthChecked(true)
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   return (

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { BUSINESS } from '@/lib/constants'
 
 type Step = 'form' | 'loading' | 'success' | 'error'
@@ -152,19 +151,25 @@ export default function LibroReclamacionesForm() {
     setError('')
 
     try {
-      const { error: dbError } = await supabase.from('web_reclamaciones').insert({
-        nombre: `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno}`,
-        dni: form.dni,
-        celular: form.celular,
-        email: form.email,
-        direccion: `${form.direccion}, ${form.distrito}, ${form.provincia}, ${form.departamento}`,
-        tipo: form.tipo,
-        detalle: form.detalle,
-        pedido: form.pedido,
-        estado: 'pendiente',
+      const res = await fetch('/api/reclamaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: `${form.nombre} ${form.apellidoPaterno} ${form.apellidoMaterno}`,
+          dni: form.dni,
+          celular: form.celular,
+          email: form.email,
+          direccion: `${form.direccion}, ${form.distrito}, ${form.provincia}, ${form.departamento}`,
+          tipo: form.tipo,
+          detalle: form.detalle,
+          pedido: form.pedido,
+        }),
       })
 
-      if (dbError) throw new Error(dbError.message)
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Error al enviar')
+      }
       setStep('success')
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al enviar'

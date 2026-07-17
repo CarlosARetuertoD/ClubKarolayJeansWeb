@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import QRCode from 'qrcode'
-import { supabase } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
 import { BUSINESS, SITE_URL } from '@/lib/constants'
 
 type CodigoPromo = {
@@ -33,58 +33,19 @@ export default function MisCodigosContent() {
   const [timeLeft, setTimeLeft] = useState(0)
 
   useEffect(() => {
-    let found = false
+    const session = getSession()
+    if (!session) {
+      router.replace('/login?redirect=/mis-codigos')
+      return
+    }
 
-    async function loadCodigos(userId: string) {
-      if (found) return
-      found = true
-
-      // Try to get client ID from web_clientes
-      const { data: cliente } = await supabase
-        .from('web_clientes')
-        .select('id')
-        .eq('auth_uid', userId)
-        .maybeSingle()
-
-      const clienteId = cliente?.id
-      if (!clienteId) {
+    fetch(`/api/mis-codigos?cliente_id=${encodeURIComponent(session.id)}`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.codigos) setCodigos(result.codigos)
         setLoading(false)
-        return
-      }
-
-      // Fetch codes via API (bypasses RLS, handles global + personal)
-      const res = await fetch(`/api/mis-codigos?cliente_id=${clienteId}`)
-      const result = await res.json()
-
-      if (result.codigos) setCodigos(result.codigos)
-      setLoading(false)
-    }
-
-    // Try existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadCodigos(session.user.id)
-      }
-    })
-
-    // Listen for session restore
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        loadCodigos(session.user.id)
-      } else if (event === 'SIGNED_OUT') {
-        router.replace('/login?redirect=/mis-codigos')
-      }
-    })
-
-    // Timeout — if no session after 5s, redirect to login
-    const timeout = setTimeout(() => {
-      if (!found) router.replace('/login?redirect=/mis-codigos')
-    }, 5000)
-
-    return () => {
-      subscription.unsubscribe()
-      clearTimeout(timeout)
-    }
+      })
+      .catch(() => setLoading(false))
   }, [router])
 
   // Countdown timer for QR
@@ -105,17 +66,12 @@ export default function MisCodigosContent() {
     setError('')
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const { data: cliente } = await supabase
-        .from('web_clientes')
-        .select('id')
-        .eq('auth_uid', session?.user?.id || '')
-        .maybeSingle()
+      const session = getSession()
 
       const res = await fetch('/api/canje', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codigo_promo_id: codigoId, cliente_id: cliente?.id }),
+        body: JSON.stringify({ codigo_promo_id: codigoId, cliente_id: session?.id }),
       })
 
       const data = await res.json()

@@ -9,7 +9,7 @@ import WhatsAppButton from '@/components/WhatsAppButton'
 import { BUSINESS, MARCAS, TENDENCIAS, CLASICOS, PROMOS_DATA, WHATSAPP_URL, WHATSAPP_DEFAULT_MSG } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
-import { supabase } from '@/lib/supabase'
+import { getSession } from '@/lib/session'
 
 export default function HomePage() {
   return (
@@ -337,9 +337,7 @@ function ClubVIPSection() {
   const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setLoggedIn(true)
-    })
+    if (getSession()) setLoggedIn(true)
   }, [])
 
   return (

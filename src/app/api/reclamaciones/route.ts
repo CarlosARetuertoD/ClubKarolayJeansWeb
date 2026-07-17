@@ -4,13 +4,12 @@ import { erpSend, ErpError } from '@/lib/erp'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const data = await erpSend<{ ok: boolean; cliente: unknown }>('POST', 'registro/', body)
-    return NextResponse.json({ ok: true, cliente: data.cliente })
+    const data = await erpSend('POST', 'reclamaciones/', body)
+    return NextResponse.json(data, { status: 201 })
   } catch (err: unknown) {
     if (err instanceof ErpError) {
       return NextResponse.json({ error: err.message }, { status: err.status })
     }
-    const message = err instanceof Error ? err.message : 'Error al registrar'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Error al enviar' }, { status: 500 })
   }
 }
