@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Contexto del ecosistema Redel
+
+Este proyecto es parte del ecosistema Redel de Carlos Retuerto. Antes de hacer cambios grandes, sigue el protocolo del vault `C:\Users\DELL\OneDrive\Escritorio\ClaudIAMemory`, página `wiki/conceptos/Protocolo de arranque en una app existente.md`:
+
+1. Lee la página de esta app y de su empresa en `wiki/empresas/`.
+2. Lee las fuentes de verdad: `wiki/conceptos/Arquitectura Redel.md`, `Estándar de diseño Redel.md`, `Requisitos de seguridad Redel.md`, `Requisitos de integridad de datos Redel.md` y `wiki/Errores a no repetir.md`.
+3. Verifica el estado REAL del código (`git log`, `git status`) antes de confiar en lo que diga el wiki — puede estar desactualizado.
+
 ## Qué es
 
 Web pública de **Club Karolay Jeans** (`clubkarolayjeans.com`) — marca comercial de Negocios e Inversiones Karolay EIRL, tienda de jeans y moda denim para dama y varón en el C.C. Don Ramón, Arequipa, Perú. Combina landing de marketing (SEO fuerte) con un **club de membresía**: registro, login, códigos promo personales/globales y canje por QR en tienda.
