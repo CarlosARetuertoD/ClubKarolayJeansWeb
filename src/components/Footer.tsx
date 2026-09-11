@@ -90,9 +90,10 @@ export default function Footer() {
             <p className="text-white/50 text-sm mb-1">{BUSINESS.phone}</p>
             <p className="text-white/40 text-xs mb-3">{BUSINESS.email}</p>
 
-            {/* Abrir en Maps */}
+            {/* Abrir en Maps — al Google Business Profile propio de Club Karolay
+                Jeans (creado 2026-09-10), no al centro comercial genérico. */}
             <a
-              href="https://www.google.com/maps/place/Megacentro+DON+RAM%C3%93N/@-16.400515,-71.5287654,18z"
+              href="https://www.google.com/maps/place/Club+Karolay+Jeans/@-16.4006985,-71.5290725,17z/data=!3m1!4b1!4m6!3m5!1s0x91424b5e38c146af:0xcd843ada096efd28!8m2!3d-16.4006985!4d-71.5290725!16s%2Fg%2F11nvymfq_y"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-mocha-500 text-sm font-medium hover:text-mocha-400 transition-colors mb-3"
@@ -106,7 +107,7 @@ export default function Footer() {
             {/* Google Maps */}
             <div className="rounded-lg overflow-hidden border border-white/10 h-44">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d956.88!2d-71.5287654!3d-16.400515!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91424a544ea4baff%3A0xa91a525ba62a7ebb!2sMegacentro%20DON%20RAM%C3%93N!5e0!3m2!1ses!2spe!4v1"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d956.88!2d-71.5290725!3d-16.4006985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91424b5e38c146af%3A0xcd843ada096efd28!2sClub%20Karolay%20Jeans!5e0!3m2!1ses!2spe!4v1"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
