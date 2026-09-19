@@ -30,7 +30,7 @@ html {
 .bg-dark-radial {
   background:
     radial-gradient(circle at top, rgba(32, 30, 30, 0.9) 0, rgba(25, 22, 20, 0.96) 55%, rgba(11, 9, 8, 0.98) 100%),
-    url('/images/hero/hero-lg.png') center center / cover no-repeat fixed;
+    url('/images/hero/hero-lg.webp') center center / cover no-repeat fixed;
 }
 
 .bg-card-radial {
@@ -80,6 +80,11 @@ html {
 }
 .section-visible {
   opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .section-hidden { opacity: 1; }
 }
 
 /* ── Marquee / carousel infinito de marcas ── */

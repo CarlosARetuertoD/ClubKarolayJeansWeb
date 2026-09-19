@@ -1,24 +1,32 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { PROMOS_DATA, SITE_URL, SPRING_CAMPAIGN } from '@/lib/constants'
 import PromoContent from './PromoContent'
+import SpringContent from './SpringContent'
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const title = params.slug
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+type Props = { params: Promise<{ slug: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const promo = PROMOS_DATA.find(p => p.slug === slug)
+  if (!promo) return { title: 'Promoción no encontrada', robots: { index: false } }
+  const title = slug === SPRING_CAMPAIGN.slug ? 'Primavera a tu estilo · Colección y ofertas 2026' : `${promo.titulo} · ${promo.subtitulo}`
 
   return {
-    title: `${title} — Promoción Exclusiva en Jeans`,
-    description: `Promoción ${title} en Club Karolay Jeans, Arequipa. Aprovecha esta oferta exclusiva en jeans y moda denim. Descuentos especiales para miembros del Club VIP.`,
-    alternates: { canonical: `https://www.clubkarolayjeans.com/promo/${params.slug}` },
+    title,
+    description: promo.descripcion,
+    alternates: { canonical: `${SITE_URL}/promo/${slug}` },
     openGraph: {
       title: `${title} | Club Karolay Jeans`,
-      description: `Promoción exclusiva: ${title}. Ofertas en jeans y moda denim en Arequipa.`,
-      url: `https://www.clubkarolayjeans.com/promo/${params.slug}`,
+      description: promo.descripcion,
+      url: `${SITE_URL}/promo/${slug}`,
+      images: [{ url: promo.imagen }],
     },
   }
 }
 
-export default function PromoPage({ params }: { params: { slug: string } }) {
-  return <PromoContent slug={params.slug} />
+export default async function PromoPage({ params }: Props) {
+  const { slug } = await params
+  if (!PROMOS_DATA.some(p => p.slug === slug)) notFound()
+  return slug === SPRING_CAMPAIGN.slug ? <SpringContent /> : <PromoContent slug={slug} />
 }

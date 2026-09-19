@@ -135,7 +135,7 @@ function CategoriesSection() {
           {CATEGORIAS.map((cat) => (
             <a
               key={cat.slug}
-              href={`#${cat.slug}`}
+              href={cat.slug === 'jeans' ? '#jeans' : `${WHATSAPP_URL}?text=${encodeURIComponent(`Hola, quiero consultar modelos y tallas de ${cat.nombre}.`)}`}
               onClick={() => trackClick('catalogo', cat.slug, '/catalogo')}
               className="category-card group relative rounded-xl sm:rounded-2xl overflow-hidden border border-white/6 bg-dark-card aspect-[3/4]"
             >

@@ -19,9 +19,9 @@ export class ErpError extends Error {
   status: number;
   body: unknown;
   constructor(status: number, body: unknown) {
-    super(typeof body === "object" && body && "error" in body ? String((body as { error: string }).error) : `RedelERP ${status}`);
+    super(status >= 500 ? 'El servicio no está disponible. Intenta nuevamente.' : typeof body === "object" && body && "error" in body ? String((body as { error: string }).error) : `RedelERP ${status}`);
     this.status = status;
-    this.body = body;
+    this.body = status >= 500 ? { error: this.message } : body;
   }
 }
 
@@ -29,6 +29,7 @@ export async function erpGet<T = unknown>(path: string): Promise<T> {
   const res = await fetch(`${ERP_URL}/api/web/${path}`, {
     headers: headers(),
     cache: "no-store",
+    signal: AbortSignal.timeout(15000),
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ErpError(res.status, body);
@@ -40,6 +41,7 @@ export async function erpSend<T = unknown>(method: "POST" | "PATCH", path: strin
     method,
     headers: headers(),
     body: JSON.stringify(data),
+    signal: AbortSignal.timeout(15000),
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new ErpError(res.status, body);

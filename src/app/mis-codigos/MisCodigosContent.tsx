@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import QRCode from 'qrcode'
-import { getSession } from '@/lib/session'
+import { getSession, clubFetch } from '@/lib/session'
 import { BUSINESS, SITE_URL } from '@/lib/constants'
 
 type CodigoPromo = {
@@ -39,7 +39,7 @@ export default function MisCodigosContent() {
       return
     }
 
-    fetch(`/api/mis-codigos?cliente_id=${encodeURIComponent(session.id)}`)
+    clubFetch('/api/mis-codigos')
       .then((res) => res.json())
       .then((result) => {
         if (result.codigos) setCodigos(result.codigos)

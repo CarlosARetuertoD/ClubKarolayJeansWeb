@@ -19,7 +19,7 @@ export default function LoginForm() {
     if (typeof window === 'undefined') return '/bio'
     const params = new URLSearchParams(window.location.search)
     const redirect = params.get('redirect') || '/bio'
-    return redirect.startsWith('/') ? redirect : '/bio'
+    return redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\') ? redirect : '/bio'
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

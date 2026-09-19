@@ -16,7 +16,7 @@ export type ClubSession = {
   created_at: string | null;
 };
 
-const KEY = "ckj_session";
+const KEY = "ckj_session_v2"; // Cache de interfaz; la identidad real está en la cookie HttpOnly.
 
 export function getSession(): ClubSession | null {
   if (typeof localStorage === "undefined") return null;
@@ -37,9 +37,26 @@ export function setSession(cliente: ClubSession) {
   if (cliente.nombre) localStorage.setItem("ckj_user_name", cliente.nombre);
 }
 
-export function clearSession() {
+export function clearSessionCache() {
   localStorage.removeItem(KEY);
+  localStorage.removeItem("ckj_session");
   localStorage.removeItem("ckj_cliente_id");
   localStorage.removeItem("ckj_user_name");
   localStorage.removeItem("ckj_bio_cliente");
+}
+
+export async function clearSession() {
+  const response = await fetch('/api/logout', { method: 'POST' });
+  if (!response.ok) throw new Error('No se pudo cerrar sesión. Intenta nuevamente.');
+  clearSessionCache();
+}
+
+export async function clubFetch(url: string, init?: RequestInit) {
+  const response = await fetch(url, { ...init, cache: 'no-store' });
+  if (response.status === 401 && (!init?.method || init.method === 'GET')) {
+    clearSessionCache();
+    window.location.replace(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+    throw new Error('Tu sesión venció.');
+  }
+  return response;
 }

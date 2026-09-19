@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import TrackingProvider from '@/components/TrackingProvider'
 import SmoothScroll from '@/components/SmoothScroll'
+import { BUSINESS } from '@/lib/constants'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.clubkarolayjeans.com'),
@@ -96,6 +97,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        <noscript><style>{'.section-hidden { opacity: 1 !important; }'}</style></noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -124,8 +126,8 @@ export default function RootLayout({
               },
               geo: {
                 '@type': 'GeoCoordinates',
-                latitude: -16.3989,
-                longitude: -71.5350,
+                latitude: BUSINESS.latitude,
+                longitude: BUSINESS.longitude,
               },
               areaServed: [
                 {

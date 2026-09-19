@@ -11,12 +11,14 @@ export default function SmoothScroll() {
 
       const href = anchor.getAttribute('href')
       if (!href) return
+      const destination = new URL(href, window.location.href)
+      if (destination.origin !== window.location.origin || destination.pathname !== window.location.pathname) return
 
       // Extract the hash part
       const hash = href.includes('#') ? '#' + href.split('#')[1] : null
       if (!hash || hash === '#') return
 
-      const el = document.querySelector(hash)
+      const el = document.getElementById(decodeURIComponent(hash.slice(1)))
       if (!el) return
 
       e.preventDefault()
@@ -30,7 +32,7 @@ export default function SmoothScroll() {
 
       window.scrollTo({
         top,
-        behavior: 'smooth',
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
       })
     }
 

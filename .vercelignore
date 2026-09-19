@@ -1,0 +1,4 @@
+.env*
+tests/
+.audit-current.json
+*.log

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { getSession, setSession, clearSession, type ClubSession } from '@/lib/session'
+import { getSession, setSession, clearSession, clubFetch, type ClubSession } from '@/lib/session'
 import { BUSINESS } from '@/lib/constants'
 
 type ClienteData = {
@@ -39,7 +39,7 @@ export default function CuentaContent() {
     }
 
     // Datos frescos desde RedelERP; fallback a la sesión local si falla
-    fetch(`/api/cuenta?cliente_id=${encodeURIComponent(session.id)}`)
+    clubFetch('/api/cuenta')
       .then((res) => res.json())
       .then((data) => {
         const c = (data.cliente || session) as ClubSession
@@ -153,9 +153,11 @@ export default function CuentaContent() {
     setChangingPassword(false)
   }
 
-  const handleLogout = () => {
-    clearSession()
-    router.push('/')
+  const handleLogout = async () => {
+    try {
+      await clearSession()
+      router.push('/')
+    } catch { setError('No se pudo cerrar sesión. Intenta nuevamente.') }
   }
 
   if (loading) {

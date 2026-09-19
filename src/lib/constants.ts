@@ -12,6 +12,9 @@ export const BUSINESS = {
   address: 'Av. Siglo XX 209-213, C.C. Don Ramón, INT. B-77',
   city: 'Cercado de Arequipa 04001, Perú',
   phone: '+51 993 084 496',
+  hours: 'Lun - Sáb, 9:00 am - 8:00 pm\nDom, 9:00 am - 7:00 pm',
+  latitude: -16.4006985,
+  longitude: -71.5290725,
   email: 'ventas@clubkarolayjeans.com',
   whatsapp: WHATSAPP_NUMBER,
   social: {
@@ -103,14 +106,25 @@ export const CLASICOS = [
 
 export const PROMOS_DATA = [
   {
-    slug: 'temporada-otono-2026',
+    slug: 'temporada-primavera-2026',
     titulo: 'Nueva Temporada',
+    subtitulo: 'Primavera 2026',
+    descripcion: 'Nuevos días, nuevos looks. Descubre tu próximo jean favorito y las ofertas de primavera.',
+    detalle: 'Primavera a tu estilo: denim, cortes relajados y nuevas formas de combinar. Consulta tu talla y conoce las promociones de la campaña.',
+    cta: 'Descubrir la primavera',
+    imagen: '/images/fotos/chicas-jeans.webp',
+    badge: 'Primavera a tu estilo',
+    color: '#9b6d53',
+  },
+  {
+    slug: 'temporada-otono-2026',
+    titulo: 'Fin de temporada',
     subtitulo: 'Otoño 2026',
-    descripcion: 'Los nuevos lavados y cortes que marcan tendencia esta temporada ya llegaron a tienda.',
-    detalle: 'Casacas en jean y corduroy con los tonos de la temporada. Jeans wide-leg y baggy con lavados vintage que combinan con todo. Ven a probártelos — cada cuerpo es diferente y queremos que encuentres tu fit perfecto.',
-    cta: 'Quiero ver la nueva temporada',
+    descripcion: 'Despide el otoño con tus favoritos de la colección. Consulta los modelos y tallas que siguen disponibles.',
+    detalle: 'La colección de otoño se despide para dar paso a la primavera. Encuentra casacas en jean y corduroy, lavados vintage y cortes de siempre. Consulta los modelos, tallas y precios disponibles antes de visitarnos.',
+    cta: 'Ver fin de temporada',
     imagen: '/images/promos/promo-landing-1.webp',
-    badge: 'Nuevo en tienda',
+    badge: 'Colección de otoño',
     color: '#9b6d53',
   },
   {
@@ -118,10 +132,21 @@ export const PROMOS_DATA = [
     titulo: 'Descuento Exclusivo',
     subtitulo: 'Solo para miembros',
     descripcion: 'Regístrate en el Club y accede a precios especiales en cada visita.',
-    detalle: 'Los miembros de Club Karolay Jeans tienen descuentos exclusivos que no encontrarás en ningún otro lado. Solo muestra tu tarjeta digital en tienda y el descuento se aplica automáticamente. Así de simple.',
+    detalle: 'Crea tu cuenta y recibe un código de bienvenida con 10% de descuento, válido por 30 días. Revisa sus condiciones en Mis códigos y genera tu QR cuando estés en caja. Consulta las condiciones de cada promoción antes de comprar.',
     cta: 'Unirme al Club',
     imagen: '/images/promos/promo-landing-2.webp',
     badge: 'Club VIP',
     color: '#ddb153',
   },
 ] as const
+
+export const SPRING_CAMPAIGN = {
+  slug: 'temporada-primavera-2026',
+  title: 'Primavera a tu estilo',
+  dates: ['2026-09-19', '2026-09-26'],
+  dateLabel: '19 y 26 de septiembre de 2026',
+  offer: '15% OFF',
+  products: 'Drill y Baggy seleccionados',
+  location: 'C.C. Don Ramón · Int. B-77',
+  heroImage: '/images/fotos/chicas-jeans.webp',
+} as const

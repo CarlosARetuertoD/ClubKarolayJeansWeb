@@ -15,6 +15,7 @@ export default function BioCard() {
 
   const [cliente, setCliente] = useState<ClienteData>(null)
   const [loading, setLoading] = useState(true)
+  const [logoutError, setLogoutError] = useState('')
 
   // Instant load from cache to avoid flash
   useEffect(() => {
@@ -312,15 +313,18 @@ export default function BioCard() {
           <p className="opacity-80">Guarda este enlace o QR para tus próximas visitas.</p>
           {!loading && cliente && (
             <button
-              onClick={() => {
-                clearSession()
-                setCliente(null)
+              onClick={async () => {
+                try {
+                  await clearSession()
+                  setCliente(null)
+                } catch { setLogoutError('No se pudo cerrar sesión. Intenta nuevamente.') }
               }}
               className="mt-3 text-white/25 text-[0.7rem] hover:text-white/50 transition-colors"
             >
               Cerrar sesión
             </button>
           )}
+          {logoutError && <p role="alert" className="text-red-300 text-xs mt-2">{logoutError}</p>}
         </footer>
       </section>
     </main>

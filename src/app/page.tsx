@@ -19,8 +19,9 @@ export default function HomePage() {
         <HeroSection />
         <NosotrosSection />
         <MarcasCarousel />
-        <PromoTemporada />
+        <PromoTemporada slug="temporada-primavera-2026" id="promociones" />
         <TendenciasSection />
+        <PromoTemporada slug="temporada-otono-2026" id="fin-de-temporada" />
         <ClubVIPSection />
         <ClasicosSection />
         <UbicacionSection />
@@ -214,18 +215,18 @@ function MarcasCarousel() {
 /* ═══════════════════════════════════════════
    PROMO TEMPORADA — editorial landing
    ═══════════════════════════════════════════ */
-function PromoTemporada() {
-  const promo = PROMOS_DATA[0]
+function PromoTemporada({ slug, id }: { slug: string; id: string }) {
+  const promo = PROMOS_DATA.find(p => p.slug === slug)!
   const { ref, visible } = useScrollReveal()
 
   return (
     <section
-      id="promociones"
+      id={id}
       ref={ref as React.RefObject<HTMLElement>}
       className={`relative min-h-[85vh] flex items-center overflow-hidden bg-dark ${visible ? 'section-visible' : 'section-hidden'}`}
     >
       <picture>
-        <img src="/images/fotos/chica-sentada.webp" alt={promo.titulo} className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        <img src={slug === 'temporada-otono-2026' ? '/images/fotos/chica-sentada.webp' : promo.imagen} alt={`${promo.titulo} — ${promo.subtitulo}`} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-30" />
       </picture>
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
 
@@ -515,7 +516,7 @@ function UbicacionSection() {
             <div className="space-y-3">
               <InfoRow icon="pin" text={`${BUSINESS.address}`} sub={BUSINESS.city} />
               <InfoRow icon="phone" text={BUSINESS.phone} sub="WhatsApp y llamadas" />
-              <InfoRow icon="clock" text={"Lun - Sáb, 9:00 am - 8:00 pm\nDom, 9:00 am - 7:00 pm"} sub="Sujeto a horario del C.C. Don Ramón" />
+              <InfoRow icon="clock" text={BUSINESS.hours} sub="Sujeto a horario del C.C. Don Ramón" />
             </div>
           </div>
         </div>

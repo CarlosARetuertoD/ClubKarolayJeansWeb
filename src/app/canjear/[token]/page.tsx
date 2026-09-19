@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function CanjearPage({ params }: { params: { token: string } }) {
-  return <CanjearContent token={params.token} />
+export default async function CanjearPage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
+  return <CanjearContent token={token} />
 }

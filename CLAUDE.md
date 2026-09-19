@@ -12,6 +12,8 @@ Este proyecto es parte del ecosistema Redel de Carlos Retuerto. Antes de hacer c
 
 ## Qué es
 
+> **Estado vigente 2026-09-18:** Next.js 16 + React 19 (Webpack). La sesión ya NO es solo localStorage: `serverSession.ts` firma una cookie HttpOnly de una hora y las rutas de cuenta/códigos/QR validan identidad del lado servidor. Ver `CAMBIOS-2026-09-18.md` para configuración y límites pendientes del ERP. `npm test` ejecuta las pruebas de seguridad. Hay una página de primavera con diseño propio; el landing mantiene el diseño y orden primavera → tendencias → otoño.
+
 Web pública de **Club Karolay Jeans** (`clubkarolayjeans.com`) — marca comercial de Negocios e Inversiones Karolay EIRL, tienda de jeans y moda denim para dama y varón en el C.C. Don Ramón, Arequipa, Perú. Combina landing de marketing (SEO fuerte) con un **club de membresía**: registro, login, códigos promo personales/globales y canje por QR en tienda.
 
 Parte del ecosistema Karolay (ver `../CLAUDE.md` del workspace). Es la única app del ecosistema que no toca inventario: solo consume las tablas web del club (`marketing_web*`) en RedelBD.
@@ -99,3 +101,13 @@ NEXT_PUBLIC_SITE_URL=https://www.clubkarolayjeans.com
 ```
 
 Las vars `SUPABASE_*` del README ya no existen.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

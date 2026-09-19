@@ -6,7 +6,7 @@ import Link from 'next/link'
 import QRCode from 'qrcode'
 import { BUSINESS, PROMOS_DATA, WHATSAPP_URL, SITE_URL } from '@/lib/constants'
 import { trackClick } from '@/lib/tracking'
-import { getSession } from '@/lib/session'
+import { getSession, clubFetch } from '@/lib/session'
 
 type CodigoPromo = {
   id: string
@@ -39,7 +39,7 @@ export default function PromocionesContent() {
     setLoggedIn(true)
     setClienteId(session.id)
 
-    fetch(`/api/mis-codigos?cliente_id=${encodeURIComponent(session.id)}`)
+    clubFetch('/api/mis-codigos')
       .then((res) => res.json())
       .then((result) => {
         if (result.codigos) setCodigos(result.codigos)

@@ -4,7 +4,9 @@ Sitio web oficial de **Club Karolay Jeans**, tienda especializada en jeans y mod
 
 ## Stack
 
-- **Framework:** Next.js 14 (App Router)
+> Actualización 2026-09-18: ver [CAMBIOS-2026-09-18.md](CAMBIOS-2026-09-18.md). El proyecto incorpora primavera, rutas de cliente protegidas por cookie HttpOnly firmada y pruebas `npm test`. Las referencias históricas de este README a sesión solo en localStorage ya no aplican.
+
+- **Framework:** Next.js 16 (App Router), React 19, Webpack
 - **Estilos:** Tailwind CSS
 - **Base de datos / Auth:** KarolayJeansERP (Django en Railway) vía `/api/web/*` con header `X-Web-Key` — sin base de datos propia
 - **QR:** qrcode (generacion client-side)
