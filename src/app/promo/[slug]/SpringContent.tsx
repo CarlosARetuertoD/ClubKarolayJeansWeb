@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { BUSINESS, SPRING_CAMPAIGN as campaign, WHATSAPP_URL } from '@/lib/constants'
+import { SPRING_CAMPAIGN as campaign, WHATSAPP_URL } from '@/lib/constants'
+import Footer from '@/components/Footer'
 import { trackClick } from '@/lib/tracking'
 import styles from './spring.module.css'
 
@@ -33,6 +34,7 @@ export default function SpringContent() {
   const track = (label: string) => trackClick('whatsapp', `primavera_${label}`, path)
 
   return (
+    <>
     <main className={styles.page}>
       <nav className={styles.nav} aria-label="Navegación de primavera">
         <Link href="/" className={styles.brand}>
@@ -44,7 +46,7 @@ export default function SpringContent() {
 
       <section className={styles.hero} aria-labelledby="spring-title">
         <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}><span className={styles.flower} aria-hidden="true">✳</span> NUEVA TEMPORADA / 2026</p>
+          <p className={styles.eyebrow}>NUEVA TEMPORADA / 2026</p>
           <h1 id="spring-title">Primavera<br /><em>a tu estilo.</em></h1>
           <p className={styles.intro}>Días más ligeros. Jeans que van contigo.<br />Encuentra ese fit que se siente muy tú.</p>
           <div className={styles.actions}>
@@ -54,13 +56,9 @@ export default function SpringContent() {
           <p className={styles.heroNote}>DAMA & VARÓN <span>—</span> HECHO PARA TUS PLANES</p>
         </div>
         <div className={styles.heroPhoto}>
-          <Image src={campaign.heroImage} alt="Inspiración de looks denim en lavados claros para primavera" fill priority sizes="(max-width: 760px) 100vw, 55vw" />
-          <div className={styles.photoTag}><span>THE DENIM EDIT</span><strong>01 / PRIMAVERA</strong></div>
-          <div className={styles.stamp} aria-hidden="true">NUEVOS<br /><em>aires.</em><span> MISMO DENIM</span></div>
+          <Image src={campaign.heroImage} alt="Inspiración de looks denim en lavados claros para primavera" fill priority sizes="100vw" />
         </div>
       </section>
-
-      <div className={styles.ribbon}><span>NUEVA ESTACIÓN</span><span aria-hidden="true">✳</span><span>TU MISMA ESENCIA</span><span aria-hidden="true">✳</span><span>CLUB KAROLAY JEANS</span></div>
 
       <section className={styles.offer} id="oferta" aria-labelledby="offer-title">
         <div className={styles.offerIntro}>
@@ -109,7 +107,6 @@ export default function SpringContent() {
       </section>
 
       <section className={styles.club}>
-        <span className={styles.flower} aria-hidden="true">✳</span>
         <p className={styles.eyebrow}>LOS BUENOS LOOKS SE COMPARTEN</p>
         <h2>Tu próxima temporada<br /><em>empieza en el Club.</em></h2>
         <p>Crea tu cuenta gratis y recibe tu código de bienvenida del 10%, válido por 30 días. Revisa las condiciones de tu código y muéstralo por QR en caja.</p>
@@ -122,7 +119,8 @@ export default function SpringContent() {
         <div><p><strong>Fechas y productos.</strong> Oferta del 15% en Drill y Baggy seleccionados, únicamente el {campaign.dateLabel}, durante el horario de atención y sujeto al stock disponible.</p><p><strong>Cómo acceder.</strong> Muestra esta página o la pieza de la campaña en caja en {campaign.location}. Confirma con la tienda los modelos, tallas y precio final antes de comprar.</p><p><strong>Beneficios del Club.</strong> El código de bienvenida es un beneficio distinto. Consulta en caja si puede combinarse con esta oferta; no se garantiza acumulación.</p></div>
       </section>
 
-      <footer className={styles.footer}><div><strong>CLUB KAROLAY JEANS</strong><p>{BUSINESS.address}</p><p>{BUSINESS.phone}</p></div><div><Link href="/#ubicacion">Cómo llegar <Arrow /></Link><Link href="/promo/temporada-otono-2026">Fin de temporada · Otoño</Link><Link href="/privacidad">Privacidad</Link></div><p>PRIMAVERA 2026 · AREQUIPA, PERÚ</p></footer>
     </main>
+    <Footer />
+    </>
   )
 }
