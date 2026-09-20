@@ -82,8 +82,10 @@ export default function Footer() {
               Dirección
             </h4>
             <p className="text-white/70 text-sm leading-relaxed mb-1">
-              {BUSINESS.address}
+              Av. Siglo XX 209-213, C.C. Don Ramón
             </p>
+            <p className="text-white/70 text-sm leading-relaxed mb-1">Stand B-77 — Segundo Pasadizo</p>
+            <p className="text-white/70 text-sm leading-relaxed mb-1">Stand A-11 — Primer Pasadizo</p>
             <p className="text-white/50 text-sm mb-3">
               {BUSINESS.city}
             </p>

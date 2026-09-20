@@ -507,6 +507,7 @@ function UbicacionSection() {
               <p className="text-white/40 text-xs font-heading uppercase tracking-[3px] mb-1">Al llegar, preguntar por</p>
               <p className="text-white font-heading font-bold text-2xl sm:text-3xl">Giovanna Delgado</p>
               <p className="text-mocha-500 text-sm mt-1">Stand B-77 — Segundo Pasadizo</p>
+              <p className="text-mocha-500 text-sm mt-1">Stand A-11 — Primer Pasadizo</p>
             </div>
           </div>
 
@@ -514,7 +515,8 @@ function UbicacionSection() {
           <div className="glass rounded-2xl p-6 sm:p-8">
             <h3 className="font-heading font-bold text-white text-lg mb-4">Información de contacto</h3>
             <div className="space-y-3">
-              <InfoRow icon="pin" text={`${BUSINESS.address}`} sub={BUSINESS.city} />
+              <InfoRow icon="pin" text="Av. Siglo XX 209-213, C.C. Don Ramón" sub={BUSINESS.city} />
+              <InfoRow icon="pin" text="Stands B-77 y A-11" sub="Segundo y Primer Pasadizo, respectivamente" />
               <InfoRow icon="phone" text={BUSINESS.phone} sub="WhatsApp y llamadas" />
               <InfoRow icon="clock" text={BUSINESS.hours} sub="Sujeto a horario del C.C. Don Ramón" />
             </div>
