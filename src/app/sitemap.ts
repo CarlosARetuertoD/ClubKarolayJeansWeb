@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...PROMOS_DATA.map(p => ({ url: `${baseUrl}/promo/${p.slug}`, lastModified: now, changeFrequency: 'weekly' as const, priority: 0.7 })),
     { url: `${baseUrl}/mapa`, lastModified: now, changeFrequency: 'yearly', priority: 0.6 },
     { url: `${baseUrl}/privacidad`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/terminos`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/libro-reclamaciones`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ]
 }

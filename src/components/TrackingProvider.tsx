@@ -11,6 +11,9 @@ function TrackingInner() {
 
   useEffect(() => {
     trackPageView(pathname)
+    const onConsent = () => trackPageView(pathname)
+    window.addEventListener('analytics-consent-changed', onConsent)
+    return () => window.removeEventListener('analytics-consent-changed', onConsent)
   }, [pathname, searchParams])
 
   return null

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import TrackingProvider from '@/components/TrackingProvider'
+import PrivacyPreferences from '@/components/PrivacyPreferences'
 import SmoothScroll from '@/components/SmoothScroll'
 import { BUSINESS } from '@/lib/constants'
 
@@ -199,8 +200,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased bg-dark text-white">
+      {/* Browser extensions may inject body attributes before hydration (cz-shortcut-listen).
+          Keep this exception on body only; child components retain hydration checks. */}
+      <body suppressHydrationWarning className="font-sans antialiased bg-dark text-white">
         <TrackingProvider />
+        <PrivacyPreferences />
         <SmoothScroll />
         {children}
       </body>

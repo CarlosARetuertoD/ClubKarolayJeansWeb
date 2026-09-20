@@ -127,9 +127,15 @@ export default function Footer() {
             <p className="text-white/60 text-sm">
               &copy; {new Date().getFullYear()} <strong>Club Karolay Jeans</strong>. Todos los derechos reservados.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              <Link href="/terminos" className="text-white/50 text-xs hover:text-mocha-500 transition-colors">
+                Términos y Condiciones
+              </Link>
               <Link href="/privacidad" className="text-white/50 text-xs hover:text-mocha-500 transition-colors">
                 Política de Privacidad
+              </Link>
+              <Link href="/libro-reclamaciones" className="text-white/50 text-xs hover:text-mocha-500 transition-colors">
+                Libro de Reclamaciones
               </Link>
             </div>
           </div>

@@ -6,12 +6,14 @@ import Link from 'next/link'
 import { setSession, type ClubSession } from '@/lib/session'
 import { trackClick } from '@/lib/tracking'
 import { BUSINESS } from '@/lib/constants'
+import { LEGAL_VERSION } from '@/lib/legal'
 
 type Step = 'form' | 'loading' | 'success' | 'error'
 
 export default function RegistroForm() {
   const [step, setStep] = useState<Step>('form')
   const [error, setError] = useState('')
+  const [legal, setLegal] = useState({ version: LEGAL_VERSION, terminos: false, whatsapp: false, email: false })
   const [form, setForm] = useState({
     nombre: '',
     celular: '',
@@ -40,6 +42,7 @@ export default function RegistroForm() {
           genero: form.genero || null,
           email: form.email,
           password: form.password,
+          legal,
         }),
       })
       const regData = await regRes.json()
@@ -73,7 +76,7 @@ export default function RegistroForm() {
           </Link>
           <h1 className="font-heading text-2xl font-bold text-white">Únete al Club</h1>
           <p className="text-white/60 text-sm mt-2">
-            Regístrate y accede a descuentos exclusivos, promos y novedades antes que nadie.
+            Regístrate y accede a descuentos exclusivos y beneficios del Club.
           </p>
         </header>
 
@@ -194,6 +197,18 @@ export default function RegistroForm() {
                 <p className="text-red-400 text-sm bg-red-400/10 px-4 py-2 rounded-xl">{error}</p>
               )}
 
+              <label className="flex items-start gap-2.5 text-white/55 text-xs leading-relaxed cursor-pointer">
+                <input type="checkbox" required checked={legal.terminos} onChange={e => setLegal({ ...legal, terminos: e.target.checked })} className="mt-0.5 accent-[#9b6d53]" />
+                <span>
+                  He leído y acepto los <Link href="/terminos" className="text-mocha-500 hover:underline">Términos y Condiciones</Link> y declaro haber sido informado sobre la <Link href="/privacidad" className="text-mocha-500 hover:underline">Política de Privacidad</Link>.
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2.5 text-white/55 text-xs leading-relaxed cursor-pointer">
+                <input type="checkbox" checked={legal.whatsapp} onChange={e => setLegal({ ...legal, whatsapp: e.target.checked, email: false })} className="mt-0.5 accent-[#9b6d53]" />
+                <span>Quiero recibir promociones del Club por WhatsApp (opcional). Puedo retirar mi autorización gratuitamente desde Mi cuenta.</span>
+              </label>
+
               <button
                 type="submit"
                 disabled={step === 'loading'}
@@ -208,9 +223,6 @@ export default function RegistroForm() {
               <Link href="/login" className="text-mocha-500 hover:text-mocha-400 font-semibold transition-colors">
                 Iniciar Sesión
               </Link>
-            </p>
-            <p className="text-white/40 text-xs text-center mt-3">
-              Al registrarte aceptas recibir novedades y promos de Club Karolay Jeans.
             </p>
           </>
         )}

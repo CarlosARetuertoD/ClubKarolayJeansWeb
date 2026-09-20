@@ -6,6 +6,8 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.clubkar
 
 export const BUSINESS = {
   name: 'Club Karolay Jeans',
+  legalName: 'Negocios e Inversiones Karolay E.I.R.L.',
+  ruc: '20603641656',
   tagline: 'Denim & Fashion',
   description: 'Tu tienda especializada en jeans y moda denim en Arequipa. Trabajamos con las mejores marcas del mercado para ofrecerte variedad de fits, lavados y estilos — todo en un solo lugar.',
   shortDescription: 'Tienda de jeans y moda denim para dama y varón en Arequipa.',

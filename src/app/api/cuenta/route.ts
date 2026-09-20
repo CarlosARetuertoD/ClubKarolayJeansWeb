@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest) {
     const clienteId = requireSession(request)
     const body = await request.json()
     if (!body || typeof body !== 'object' || Array.isArray(body)) return NextResponse.json({ error: 'Solicitud inválida.' }, { status: 400 })
-    const allowed = ['nombre', 'celular', 'dni', 'fecha_nacimiento', 'genero', 'password_actual', 'password_nueva']
+    const allowed = ['nombre', 'celular', 'dni', 'fecha_nacimiento', 'genero', 'password_actual', 'password_nueva', 'marketing']
     const fields = Object.fromEntries(allowed.filter(key => body && key in body).map(key => [key, body[key]]))
     const data = await erpSend('PATCH', 'cliente/', { ...fields, cliente_id: clienteId })
     return NextResponse.json(data)

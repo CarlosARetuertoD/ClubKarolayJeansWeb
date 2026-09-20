@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getSession, setSession, clearSession, clubFetch, type ClubSession } from '@/lib/session'
 import { BUSINESS } from '@/lib/constants'
+import MarketingPreferences from '@/components/MarketingPreferences'
 
 type ClienteData = {
   nombre: string
@@ -411,6 +412,7 @@ export default function CuentaContent() {
           </div>
         )}
 
+        <MarketingPreferences />
         {/* Cerrar sesión */}
         <button
           onClick={handleLogout}

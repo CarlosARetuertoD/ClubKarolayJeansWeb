@@ -1,242 +1,109 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { BUSINESS } from '@/lib/constants'
+import { LegalBox, LegalDocument, LegalSection, legalListClass } from '@/components/LegalDocument'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad',
-  description: 'Política de privacidad y protección de datos personales de Club Karolay Jeans, conforme a la Ley N.° 29733 de Protección de Datos Personales del Perú.',
+  description: 'Política de privacidad y protección de datos personales de Club Karolay Jeans conforme a la normativa peruana vigente.',
   alternates: { canonical: 'https://www.clubkarolayjeans.com/privacidad' },
   robots: { index: true, follow: true },
 }
 
+const strong = 'text-white/90'
+
 export default function PrivacidadPage() {
   return (
-    <main className="bg-dark-radial min-h-screen">
-      {/* Top bar */}
-      <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/images/logo/logoKarolay.png" alt={BUSINESS.name} width={40} height={40} className="h-9 w-auto" />
-          <span className="text-white font-heading text-sm font-semibold tracking-wider uppercase hidden sm:inline">
-            {BUSINESS.name}
-          </span>
-        </Link>
-        <Link href="/" className="text-white/60 text-sm hover:text-white transition-colors flex items-center gap-1">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Volver al inicio
-        </Link>
-      </div>
+    <LegalDocument
+      title="Política de Privacidad"
+      updated="19 de septiembre de 2026"
+      intro={
+        <p>
+          Esta política explica cómo <strong className={strong}>{BUSINESS.name}</strong>, marca operada por
+          {BUSINESS.legalName}, trata los datos personales obtenidos mediante este sitio,
+          el Club de Clientes, la tienda y sus canales de atención. Se aplica la Ley N.° 29733 y su Reglamento,
+          aprobado por D.S. N.° 016-2024-JUS.
+        </p>
+      }
+    >
+      <LegalSection title="1. Identidad y canales del responsable" number="01">
+        <LegalBox>
+          <p><strong className={strong}>Responsable:</strong> {BUSINESS.legalName}</p>
+          <p><strong className={strong}>RUC:</strong> {BUSINESS.ruc}</p>
+          <p><strong className={strong}>Marca comercial:</strong> {BUSINESS.name}</p>
+          <p><strong className={strong}>Domicilio:</strong> {BUSINESS.address}, {BUSINESS.city}</p>
+          <p><strong className={strong}>Correo:</strong> <a className="text-mocha-500 hover:underline" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a></p>
+          <p><strong className={strong}>Teléfono:</strong> {BUSINESS.phone}</p>
+        </LegalBox>
+      </LegalSection>
 
-      <article className="max-w-3xl mx-auto px-4 py-8 pb-16">
-        <div className="bg-card-radial rounded-2xl p-6 sm:p-10 border border-white/6">
-          <div className="flex items-start gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-mocha-500/15 flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-mocha-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-white">Política de Privacidad</h1>
-              <p className="text-white/40 text-sm mt-1">Última actualización: Marzo 2026</p>
-            </div>
-          </div>
+      <LegalSection title="2. Datos que podemos tratar" number="02">
+        <p>Según el servicio utilizado, podemos tratar:</p>
+        <ul className={legalListClass}>
+          <li><strong className={strong}>Identificación y contacto:</strong> nombre, celular, correo, DNI o carné de extranjería, fecha de nacimiento y género cuando los proporciones.</li>
+          <li><strong className={strong}>Cuenta y Club:</strong> credenciales protegidas, identificador de cliente, estado de membresía, códigos promocionales y canjes.</li>
+          <li><strong className={strong}>Compras y atención:</strong> productos, tallas, preferencias, comprobantes, consultas, reclamos y comunicaciones.</li>
+          <li><strong className={strong}>Uso del sitio:</strong> páginas visitadas, campañas de origen, clics, dispositivo, navegador, dirección IP, fecha y hora, según la configuración técnica activa.</li>
+        </ul>
+        <p className="mt-3">No envíes información de salud, biométrica, financiera u otros datos especialmente protegidos que no hayan sido solicitados expresamente para una finalidad informada.</p>
+      </LegalSection>
 
-          {/* Intro */}
-          <div className="glass rounded-xl p-4 mb-8 text-sm text-white/60 leading-relaxed">
-            <p>
-              En <strong className="text-white/90">{BUSINESS.name}</strong>, operado por Negocios e Inversiones Karolay, nos comprometemos a proteger tu privacidad y tus datos personales en cumplimiento de la <strong className="text-white/80">Ley N.° 29733</strong>, Ley de Protección de Datos Personales del Perú, y su Reglamento aprobado por D.S. N.° 003-2013-JUS. Esta política describe cómo recopilamos, usamos, almacenamos y protegemos tu información.
-            </p>
-          </div>
+      <LegalSection title="3. Finalidades y bases que autorizan el tratamiento" number="03">
+        <ul className={legalListClass}>
+          <li><strong className={strong}>Ejecutar la relación contigo:</strong> crear y administrar tu cuenta, identificarte, mostrar códigos, validar canjes, atender solicitudes y prestar las funciones que solicites.</li>
+          <li><strong className={strong}>Cumplir obligaciones legales:</strong> emitir y conservar comprobantes, atender reclamos, responder requerimientos de autoridades y conservar documentación durante los plazos aplicables.</li>
+          <li><strong className={strong}>Seguridad:</strong> proteger la cuenta y prestar el servicio solicitado, dentro de las habilitaciones de la Ley N.° 29733. La medición opcional de visitas y clics requiere tu elección previa en las preferencias de privacidad.</li>
+          <li><strong className={strong}>Publicidad:</strong> enviar novedades u ofertas únicamente por los canales que autorices de forma previa, expresa y voluntaria. Guardamos la fecha, versión del aviso y canales elegidos. Puedes retirar la autorización desde Mi cuenta o mediante nuestro correo, gratuitamente y sin perder beneficios del Club.</li>
+        </ul>
+        <p className="mt-3">No condicionamos el acceso a funciones esenciales a aceptar publicidad. La navegación por sí sola no constituye autorización para comunicaciones comerciales.</p>
+      </LegalSection>
 
-          <div className="space-y-8 text-white/75 text-sm leading-relaxed">
-            <Section title="1. Responsable del tratamiento" number="01">
-              <div className="glass rounded-lg p-4 space-y-1 text-sm">
-                <p><strong className="text-white/90">Razón social:</strong> Negocios e Inversiones Karolay</p>
-                <p><strong className="text-white/90">Domicilio:</strong> {BUSINESS.address}, {BUSINESS.city}</p>
-                <p><strong className="text-white/90">Teléfono:</strong> {BUSINESS.phone}</p>
-                <p><strong className="text-white/90">Correo:</strong>{' '}
-                  <a href={`mailto:${BUSINESS.email}`} className="text-mocha-500 hover:underline">{BUSINESS.email}</a>
-                </p>
-              </div>
-            </Section>
+      <LegalSection title="4. Datos obligatorios y consecuencias" number="04">
+        <p>Los campos marcados como obligatorios son necesarios para crear la cuenta, autenticarte, atender una compra o tramitar una solicitud. Si no los proporcionas, no podremos prestar esa función. Los campos opcionales ayudan a personalizar la atención y pueden omitirse sin perder el acceso básico al Club.</p>
+      </LegalSection>
 
-            <Section title="2. Datos personales que recopilamos" number="02">
-              <p className="mb-3">Recopilamos información personal cuando te registras en nuestro Club de Clientes, realizas una compra, utilizas nuestro sitio web o te comunicas con nosotros:</p>
+      <LegalSection title="5. Destinatarios, encargados y transferencias" number="05">
+        <p>Podemos dar acceso limitado a proveedores que alojan u operan el sitio, el sistema de clientes, comunicaciones y soporte, sujetos a instrucciones, confidencialidad y medidas de seguridad. También podremos comunicar datos a SUNAT, Indecopi, autoridades judiciales u otras entidades competentes cuando exista obligación o requerimiento válido.</p>
+        <p className="mt-3">Algunos proveedores tecnológicos o canales externos pueden procesar información fuera del Perú. Cuando exista flujo transfronterizo, aplicaremos las garantías exigidas por la normativa peruana. Si decides abrir WhatsApp, Instagram, TikTok, Facebook o Google Maps, el tratamiento posterior se rige además por las políticas de ese tercero.</p>
+        <p className="mt-3"><strong className={strong}>No vendemos ni alquilamos datos personales.</strong></p>
+      </LegalSection>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <DataCategory title="Datos de identificación" items={['Nombre completo', 'Documento de identidad (DNI / CE)', 'Fecha de nacimiento']} />
-                <DataCategory title="Datos de contacto" items={['Número de celular', 'Correo electrónico', 'Dirección (si la proporcionas)']} />
-                <DataCategory title="Datos de compra" items={['Historial de compras en tienda', 'Preferencias de productos', 'Tallas y estilos preferidos']} />
-                <DataCategory title="Datos de navegación" items={['Páginas visitadas', 'Dispositivo y navegador', 'Interacciones con el sitio']} />
-              </div>
-            </Section>
+      <LegalSection title="6. Conservación" number="06">
+        <p>Conservamos los datos durante la vigencia de la cuenta y mientras sean necesarios para las finalidades informadas. Después, podrán bloquearse o mantenerse por los plazos de prescripción y conservación exigidos por normas tributarias, de consumo, contables o para la defensa ante reclamaciones. Los datos usados exclusivamente para publicidad se dejarán de usar cuando revoques tu consentimiento, sin afectar tratamientos exigidos por ley.</p>
+      </LegalSection>
 
-            <Section title="3. Finalidad del tratamiento" number="03">
-              <p className="mb-3">Tus datos personales serán utilizados para las siguientes finalidades:</p>
-              <div className="space-y-2">
-                <FinalidadItem title="Gestión del Club de Clientes" desc="Identificarte como miembro, gestionar tu tarjeta digital y aplicar descuentos exclusivos en tienda." />
-                <FinalidadItem title="Comunicaciones comerciales" desc="Enviarte información sobre promociones, novedades, lanzamientos y campañas especiales a través de WhatsApp, correo electrónico u otros medios que hayas autorizado." />
-                <FinalidadItem title="Mejora del servicio" desc="Analizar tus preferencias de compra para ofrecerte una experiencia personalizada y mejorar nuestro catálogo de productos." />
-                <FinalidadItem title="Atención al cliente" desc="Gestionar consultas, reclamos y solicitudes que realices a través de nuestros canales de atención." />
-                <FinalidadItem title="Análisis y estadísticas" desc="Realizar análisis internos de tráfico web y comportamiento de compra de forma agregada y anónima." />
-              </div>
-            </Section>
+      <LegalSection title="7. Seguridad e incidentes" number="07">
+        <p>Aplicamos controles técnicos y organizativos razonables según el riesgo, como restricción de accesos, autenticación, comunicaciones cifradas y registro de operaciones. Ningún sistema es infalible; ante un incidente que pueda afectar significativamente tus derechos, actuaremos y notificaremos conforme a la normativa aplicable.</p>
+      </LegalSection>
 
-            <Section title="4. Base legal del tratamiento" number="04">
-              <p>El tratamiento de tus datos se fundamenta en:</p>
-              <ul className="list-disc pl-5 mt-2 space-y-1.5">
-                <li><strong className="text-white/90">Consentimiento:</strong> Al registrarte en el Club o utilizar nuestro sitio web, otorgas tu consentimiento libre, expreso e informado para el tratamiento de tus datos.</li>
-                <li><strong className="text-white/90">Ejecución contractual:</strong> El tratamiento es necesario para la gestión de tu membresía y la aplicación de beneficios.</li>
-                <li><strong className="text-white/90">Interés legítimo:</strong> Para la mejora de nuestros servicios y la prevención de fraudes.</li>
-              </ul>
-            </Section>
+      <LegalSection title="8. Cookies, sesión y medición" number="08">
+        <p>La cookie necesaria ckj_auth mantiene la autenticación durante una hora. El navegador conserva también datos de presentación de la cuenta hasta cerrar sesión o borrar el almacenamiento. La cookie ckj_analytics guarda tu elección de medición durante seis meses. No registramos mediciones opcionales antes de que aceptes; puedes rechazarlas o retirar tu autorización con el botón Privacidad. La medición de visitas y clics no envía el identificador del cliente ni registra las páginas de cuenta, acceso, registro, códigos, canjes o reclamaciones. Los registros de seguridad y los servicios externos, como mapas, se tratan separadamente según su finalidad.</p>
+      </LegalSection>
 
-            <Section title="5. Almacenamiento y seguridad" number="05">
-              <p>
-                Tus datos se almacenan en servidores seguros con cifrado en tránsito (TLS/SSL) y en reposo. Implementamos medidas técnicas y organizativas para proteger tu información contra acceso no autorizado, pérdida, alteración o destrucción, incluyendo:
-              </p>
-              <ul className="list-disc pl-5 mt-2 space-y-1.5">
-                <li>Control de acceso restringido al personal autorizado</li>
-                <li>Cifrado de datos sensibles</li>
-                <li>Políticas internas de confidencialidad</li>
-                <li>Revisión periódica de medidas de seguridad</li>
-              </ul>
-            </Section>
+      <LegalSection title="9. Tus derechos" number="09">
+        <p>Puedes solicitar información, acceso, actualización, inclusión, rectificación, cancelación o supresión, oposición, portabilidad cuando corresponda y revocar el consentimiento. También puedes impedir decisiones con efectos jurídicos basadas únicamente en tratamiento automatizado, en los supuestos previstos por ley.</p>
+        <LegalBox>
+          <p>Envía tu solicitud a <a className="text-mocha-500 hover:underline" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> o preséntala en nuestro domicilio. Indica tu nombre, el derecho que ejerces, una explicación clara, un medio de respuesta y los documentos de sustento que correspondan. Podremos pedir una acreditación razonable de identidad, sin recopilar más información de la necesaria.</p>
+        </LegalBox>
+      </LegalSection>
 
-            <Section title="6. Compartición de datos con terceros" number="06">
-              <p>
-                <strong className="text-white/90">No vendemos, alquilamos ni comercializamos</strong> tus datos personales con terceros. Solo compartimos información en los siguientes casos:
-              </p>
-              <ul className="list-disc pl-5 mt-2 space-y-1.5">
-                <li><strong className="text-white/90">Proveedores de servicios:</strong> Plataformas tecnológicas que nos ayudan a operar el sitio web y gestionar comunicaciones (hosting, mensajería), bajo acuerdos de confidencialidad.</li>
-                <li><strong className="text-white/90">Obligación legal:</strong> Cuando sea requerido por autoridades judiciales o administrativas competentes conforme a la legislación peruana vigente.</li>
-              </ul>
-            </Section>
+      <LegalSection title="10. Plazos y tutela ante la Autoridad" number="10">
+        <p>Conforme al D.S. N.° 016-2024-JUS, respondemos el derecho de información en un máximo de 8 días, el derecho de acceso en 20 días y los derechos de rectificación, cancelación u oposición en 10 días, contados desde el día siguiente de la solicitud, sin perjuicio de las reglas de subsanación o ampliación legalmente aplicables.</p>
+        <p className="mt-3">Si consideras que tu solicitud no fue atendida, puedes acudir a la Autoridad Nacional de Protección de Datos Personales del Ministerio de Justicia y Derechos Humanos mediante el procedimiento de tutela correspondiente.</p>
+      </LegalSection>
 
-            <Section title="7. Cookies y tecnologías de seguimiento" number="07">
-              <p>Nuestro sitio web utiliza tecnologías de seguimiento para:</p>
-              <ul className="list-disc pl-5 mt-2 space-y-1.5">
-                <li>Registrar visitas a páginas y secciones del sitio</li>
-                <li>Medir la efectividad de nuestras campañas promocionales</li>
-                <li>Mejorar la experiencia de navegación</li>
-              </ul>
-              <p className="mt-2">
-                Esta información se recopila de forma anónima y agregada. No utilizamos cookies de terceros con fines publicitarios. Puedes configurar tu navegador para rechazar cookies, aunque esto podría afectar la funcionalidad del sitio.
-              </p>
-            </Section>
+      <LegalSection title="11. Menores de edad" number="11">
+        <p>El registro autónomo está dirigido a mayores de 18 años. No recopilamos intencionalmente datos de menores sin la intervención o autorización exigida a sus padres o representantes. Si adviertes un registro indebido, comunícalo para adoptar las medidas correspondientes.</p>
+      </LegalSection>
 
-            <Section title="8. Plazo de conservación" number="08">
-              <p>
-                Conservamos tus datos personales mientras mantengas tu membresía activa en el Club de Clientes y durante el plazo necesario para cumplir con las finalidades descritas. Una vez que solicites la eliminación de tus datos o te des de baja, procederemos a su supresión en un plazo máximo de <strong className="text-white/90">30 días hábiles</strong>, salvo que exista una obligación legal que requiera su conservación.
-              </p>
-            </Section>
+      <LegalSection title="12. Decisiones automatizadas" number="12">
+        <p>No adoptamos decisiones que produzcan efectos jurídicos o afecten significativamente a una persona basándonos exclusivamente en perfiles automatizados. Las mediciones de uso se emplean para estadísticas, seguridad y mejora del servicio.</p>
+      </LegalSection>
 
-            <Section title="9. Derechos del titular de datos personales" number="09">
-              <p className="mb-3">
-                De acuerdo con la Ley N.° 29733 y su Reglamento, como titular de tus datos personales tienes derecho a:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <DerechoItem letter="A" title="Acceso" desc="Conocer qué datos personales tuyos están siendo tratados." />
-                <DerechoItem letter="R" title="Rectificación" desc="Solicitar la corrección de datos inexactos o incompletos." />
-                <DerechoItem letter="C" title="Cancelación" desc="Solicitar la eliminación de tus datos cuando ya no sean necesarios." />
-                <DerechoItem letter="O" title="Oposición" desc="Oponerte al tratamiento de tus datos para determinadas finalidades." />
-              </div>
-              <div className="glass rounded-lg p-4 mt-4">
-                <p className="text-white/80 text-sm">
-                  Para ejercer cualquiera de estos derechos (ARCO), envía tu solicitud a{' '}
-                  <a href={`mailto:${BUSINESS.email}`} className="text-mocha-500 hover:underline">{BUSINESS.email}</a>{' '}
-                  indicando tu nombre completo, número de documento y el derecho que deseas ejercer. Atenderemos tu solicitud en un plazo máximo de <strong>10 días hábiles</strong>.
-                </p>
-              </div>
-            </Section>
-
-            <Section title="10. Menores de edad" number="10">
-              <p>
-                Nuestros servicios están dirigidos a personas mayores de 18 años. No recopilamos intencionalmente datos de menores de edad. Si detectamos que hemos recopilado información de un menor sin el consentimiento de sus padres o tutores, procederemos a eliminarla de inmediato.
-              </p>
-            </Section>
-
-            <Section title="11. Modificaciones a esta política" number="11">
-              <p>
-                Nos reservamos el derecho de actualizar esta política de privacidad en cualquier momento. Las modificaciones entrarán en vigencia desde su publicación en esta página con la fecha de última actualización. Te recomendamos revisar esta política periódicamente.
-              </p>
-            </Section>
-
-            <Section title="12. Contacto y consultas" number="12">
-              <div className="glass rounded-lg p-4 space-y-1 text-sm">
-                <p className="text-white/90 font-heading font-semibold mb-2">{BUSINESS.name}</p>
-                <p><strong className="text-white/80">Dirección:</strong> {BUSINESS.address}, {BUSINESS.city}</p>
-                <p><strong className="text-white/80">Teléfono:</strong> {BUSINESS.phone}</p>
-                <p><strong className="text-white/80">Correo:</strong>{' '}
-                  <a href={`mailto:${BUSINESS.email}`} className="text-mocha-500 hover:underline">{BUSINESS.email}</a>
-                </p>
-              </div>
-              <p className="mt-3 text-white/40 text-xs">
-                Si consideras que tus derechos no han sido debidamente atendidos, puedes presentar una reclamación ante la Autoridad Nacional de Protección de Datos Personales del Ministerio de Justicia y Derechos Humanos del Perú.
-              </p>
-            </Section>
-          </div>
-        </div>
-      </article>
-    </main>
-  )
-}
-
-function Section({ title, number, children }: { title: string; number: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="flex items-center gap-3 mb-3">
-        <span className="w-8 h-8 rounded-lg bg-mocha-500/15 flex items-center justify-center text-mocha-500 text-xs font-heading font-bold flex-shrink-0">
-          {number}
-        </span>
-        <h2 className="text-base sm:text-lg font-heading font-semibold text-white">{title}</h2>
-      </div>
-      {children}
-    </div>
-  )
-}
-
-function DataCategory({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="glass rounded-lg p-3">
-      <p className="text-mocha-500 text-xs font-heading font-semibold uppercase tracking-wider mb-2">{title}</p>
-      <ul className="space-y-1">
-        {items.map((item) => (
-          <li key={item} className="text-white/60 text-xs flex items-center gap-1.5">
-            <span className="w-1 h-1 rounded-full bg-mocha-500/50 flex-shrink-0" />
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function FinalidadItem({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <svg className="w-4 h-4 text-mocha-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75" />
-      </svg>
-      <p className="text-white/70 text-sm">
-        <strong className="text-white/90">{title}:</strong> {desc}
-      </p>
-    </div>
-  )
-}
-
-function DerechoItem({ letter, title, desc }: { letter: string; title: string; desc: string }) {
-  return (
-    <div className="glass rounded-lg p-3 flex items-start gap-3">
-      <span className="w-8 h-8 rounded-full bg-mocha-500/20 flex items-center justify-center text-mocha-500 font-heading font-bold text-sm flex-shrink-0">
-        {letter}
-      </span>
-      <div>
-        <p className="text-white/90 text-sm font-semibold">{title}</p>
-        <p className="text-white/50 text-xs mt-0.5">{desc}</p>
-      </div>
-    </div>
+      <LegalSection title="13. Cambios y contacto" number="13">
+        <p>Podemos actualizar esta política por cambios legales, técnicos o del servicio. Publicaremos la nueva versión y su fecha de actualización; si el cambio exige un nuevo consentimiento, lo solicitaremos. Para consultas sobre privacidad, escribe a <a className="text-mocha-500 hover:underline" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>.</p>
+        <p className="mt-3">Consulta también nuestros <Link href="/terminos" className="text-mocha-500 hover:underline">Términos y Condiciones</Link>.</p>
+      </LegalSection>
+    </LegalDocument>
   )
 }

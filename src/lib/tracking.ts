@@ -1,3 +1,5 @@
+import { analyticsAllowed } from './analyticsConsent'
+
 function getDevice(): 'mobile' | 'tablet' | 'desktop' {
   if (typeof window === 'undefined') return 'desktop'
   const w = window.innerWidth
@@ -27,6 +29,8 @@ function getUTMParams(): Record<string, string | null> {
 }
 
 async function send(type: 'pageview' | 'click', data: Record<string, unknown>) {
+  if (!analyticsAllowed()) return
+  if (typeof location !== 'undefined' && /^\/(cuenta|registro|login|libro-reclamaciones|mis-codigos|canjear)(\/|$)/.test(location.pathname)) return
   try {
     await fetch('/api/track', {
       method: 'POST',
@@ -43,7 +47,7 @@ export async function trackPageView(pagina: string) {
   const utm = getUTMParams()
   await send('pageview', {
     pagina,
-    referrer: typeof document !== 'undefined' ? document.referrer || null : null,
+    referrer: null,
     utm_source: utm.utm_source,
     utm_medium: utm.utm_medium,
     utm_campaign: utm.utm_campaign,
@@ -58,15 +62,10 @@ export async function trackClick(
   pagina: string,
   metadata?: Record<string, unknown>
 ) {
-  const clienteId = typeof localStorage !== 'undefined'
-    ? localStorage.getItem('ckj_cliente_id')
-    : null
-
   await send('click', {
     tipo,
     etiqueta,
     pagina,
-    cliente_id: clienteId,
-    metadata: metadata || null,
+    cliente_id: null,
   })
 }
