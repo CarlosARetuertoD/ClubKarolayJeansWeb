@@ -10,6 +10,12 @@ import { LEGAL_VERSION } from '@/lib/legal'
 
 type Step = 'form' | 'loading' | 'success' | 'error'
 
+function maxBirthDateFor18() {
+  const d = new Date()
+  d.setFullYear(d.getFullYear() - 18)
+  return d.toISOString().slice(0, 10)
+}
+
 export default function RegistroForm() {
   const [step, setStep] = useState<Step>('form')
   const [error, setError] = useState('')
@@ -148,11 +154,14 @@ export default function RegistroForm() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-white/70 text-sm mb-1.5">Fecha de nacimiento <span className="text-white/30">(opcional)</span></label>
+                  <label className="block text-white/70 text-sm mb-1.5">Fecha de nacimiento</label>
                   <input
                     type="date"
+                    required
+                    max={maxBirthDateFor18()}
                     value={form.fecha_nacimiento}
                     onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
+                    title="El registro autónomo es para mayores de 18 años."
                     className="w-full px-4 py-3 bg-dark-surface rounded-xl text-white border border-white/10 focus:border-mocha-500 focus:outline-none transition-colors [color-scheme:dark]"
                   />
                 </div>
