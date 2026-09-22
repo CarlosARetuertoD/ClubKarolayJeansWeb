@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
+import { Roboto, Montserrat } from 'next/font/google'
 import './globals.css'
 import TrackingProvider from '@/components/TrackingProvider'
 import PrivacyPreferences from '@/components/PrivacyPreferences'
 import SmoothScroll from '@/components/SmoothScroll'
 import { BUSINESS } from '@/lib/constants'
+
+// Auto-hospedadas por Next.js en el build (sin request a fonts.googleapis.com en runtime,
+// evita enviar la IP del visitante a Google antes de aceptar cookies — ver política de privacidad §8).
+const roboto = Roboto({ subsets: ['latin'], weight: ['300', '400', '500', '700'], variable: '--font-roboto', display: 'swap' })
+const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-montserrat', display: 'swap' })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.clubkarolayjeans.com'),
@@ -202,7 +208,7 @@ export default function RootLayout({
       </head>
       {/* Browser extensions may inject body attributes before hydration (cz-shortcut-listen).
           Keep this exception on body only; child components retain hydration checks. */}
-      <body suppressHydrationWarning className="font-sans antialiased bg-dark text-white">
+      <body suppressHydrationWarning className={`${roboto.variable} ${montserrat.variable} font-sans antialiased bg-dark text-white`}>
         <TrackingProvider />
         <PrivacyPreferences />
         <SmoothScroll />
