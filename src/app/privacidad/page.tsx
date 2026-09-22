@@ -63,8 +63,17 @@ export default function PrivacidadPage() {
       </LegalSection>
 
       <LegalSection title="5. Destinatarios, encargados y transferencias" number="05">
-        <p>Podemos dar acceso limitado a proveedores que alojan u operan el sitio, el sistema de clientes, comunicaciones y soporte, sujetos a instrucciones, confidencialidad y medidas de seguridad. También podremos comunicar datos a SUNAT, Indecopi, autoridades judiciales u otras entidades competentes cuando exista obligación o requerimiento válido.</p>
-        <p className="mt-3">Algunos proveedores tecnológicos o canales externos pueden procesar información fuera del Perú. Cuando exista flujo transfronterizo, aplicaremos las garantías exigidas por la normativa peruana. Si decides abrir WhatsApp, Instagram, TikTok, Facebook o Google Maps, el tratamiento posterior se rige además por las políticas de ese tercero.</p>
+        <p>Damos acceso limitado a los siguientes proveedores que alojan u operan el sitio, el sistema de clientes y las comunicaciones, sujetos a instrucciones, confidencialidad y medidas de seguridad:</p>
+        <ul className="list-disc pl-5 space-y-1.5 mt-3">
+          <li><strong className={strong}>Railway Corporation</strong> (EE. UU.) — aloja el servidor y la base de datos del sistema de clientes.</li>
+          <li><strong className={strong}>Vercel Inc.</strong> (EE. UU.) — aloja este sitio web.</li>
+          <li><strong className={strong}>Meta Platforms, Inc.</strong> (EE. UU.) — WhatsApp Business API, para la atención por ese canal.</li>
+          <li><strong className={strong}>Groq, Inc.</strong> (EE. UU.) — procesamiento con inteligencia artificial de los mensajes de WhatsApp para responder y personalizar la atención.</li>
+          <li><strong className={strong}>Cloudflare, Inc.</strong> (EE. UU.) — enrutamiento seguro de las comunicaciones del canal de WhatsApp.</li>
+          <li><strong className={strong}>Google LLC</strong> (EE. UU.) — mapa de ubicación y tipografías que se cargan al visitar el sitio.</li>
+        </ul>
+        <p className="mt-3">También podremos comunicar datos a SUNAT, Indecopi, autoridades judiciales u otras entidades competentes cuando exista obligación o requerimiento válido.</p>
+        <p className="mt-3">Los proveedores anteriores tienen sede en Estados Unidos, por lo que existe flujo transfronterizo de datos; aplicamos las garantías exigidas por la normativa peruana en su contratación. Si decides abrir enlaces a WhatsApp, Instagram, TikTok o Facebook, el tratamiento posterior en esas plataformas se rige además por sus propias políticas.</p>
         <p className="mt-3"><strong className={strong}>No vendemos ni alquilamos datos personales.</strong></p>
       </LegalSection>
 
@@ -77,7 +86,7 @@ export default function PrivacidadPage() {
       </LegalSection>
 
       <LegalSection title="8. Cookies, sesión y medición" number="08">
-        <p>La cookie necesaria ckj_auth mantiene la autenticación durante una hora. El navegador conserva también datos de presentación de la cuenta hasta cerrar sesión o borrar el almacenamiento. La cookie ckj_analytics guarda tu elección de medición durante seis meses. No registramos mediciones opcionales antes de que aceptes; puedes rechazarlas o retirar tu autorización con el botón Privacidad. La medición de visitas y clics no envía el identificador del cliente ni registra las páginas de cuenta, acceso, registro, códigos, canjes o reclamaciones. Los registros de seguridad y los servicios externos, como mapas, se tratan separadamente según su finalidad.</p>
+        <p>La cookie necesaria ckj_auth mantiene la autenticación durante una hora. El navegador conserva también datos de presentación de la cuenta hasta cerrar sesión o borrar el almacenamiento. La cookie ckj_analytics guarda tu elección de medición durante seis meses. No registramos mediciones opcionales antes de que aceptes; puedes rechazarlas o retirar tu autorización con el botón Privacidad. La medición de visitas y clics no envía el identificador del cliente ni registra las páginas de cuenta, acceso, registro, códigos, canjes o reclamaciones. El mapa de ubicación (Google Maps) y las tipografías del sitio (Google Fonts) se cargan directamente desde los servidores de Google en cada visita, incluso antes de elegir tus preferencias de cookies, porque son necesarios para mostrar la página; no están sujetos al interruptor de medición opcional. Los registros de seguridad se tratan separadamente según su finalidad.</p>
       </LegalSection>
 
       <LegalSection title="9. Tus derechos" number="09">
